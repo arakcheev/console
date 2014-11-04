@@ -1,7 +1,60 @@
-@(message: String)
+@(message: String)<!DOCTYPE html>
 
-@main("Welcome to BF console") {
+<html>
+    <head>
+        <title></title>
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("/lib/bootstrap/css/bootstrap.css")" />
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
 
-    <div>asdasdsadasd</div>
-    <div ng-view=""></div>
-}
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/test.css")">
+
+        <script data-main="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript" src="//cdn.jsdelivr.net/requirejs/2.1.14/require.js"></script>
+    </head>
+    <body>
+        <div class='example'>
+            <table cellspacing='0'>
+                <thead>
+                    <tr class='odd'>
+                        <th>Title</th>
+                        <th>One</th>
+                        <th>Two</th>
+                        <th>Three</th>
+                        <th>Four</th>
+                        <th>Row Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class='even'>
+                        <th>Single</th>
+                        <td class='numeric'>1.0</td>
+                        <td class='numeric'>2.0</td>
+                        <td class='numeric'>3.0</td>
+                        <td class='numeric'>4.0</td>
+                        <td class='numeric'>10.0</td>
+                    </tr>
+                    <tr class='odd'>
+                        <th>Tens</th>
+                        <td class='numeric'>10.0</td>
+                        <td class='numeric'>20.0</td>
+                        <td class='numeric'>30.0</td>
+                        <td class='numeric'>40.0</td>
+                        <td class='numeric'>100.0</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr class='even'>
+                        <th>Total</th>
+                        <td class='numeric'>11.0</td>
+                        <td class='numeric'>22.0</td>
+                        <td class='numeric'>33.0</td>
+                        <td class='numeric'>44.0</td>
+                        <td class='numeric'>110.0</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div ng-view=""></div>
+        <a ng-href="/wbox">wbox</a>
+    </body>
+</html>

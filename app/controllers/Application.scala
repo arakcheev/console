@@ -5,7 +5,7 @@ import play.api.mvc._
 
 object Application extends Controller {
 
-  def index = Action {
+  def index(url: String) = Action {
     import com.bf.sdk.Main._
 
     saveRepo

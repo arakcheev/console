@@ -10,9 +10,12 @@ define [
   routes.config [
     "$routeProvider"
     ($routeProvider) ->
-      $routeProvider.when("/",
+      $routeProvider
+      .when "/console/",
         templateUrl: "/assets/javascripts/console/templates/index.html"
         controller: controllers.MainCtrl
-      ).otherwise templateUrl: "/assets/javascripts/console/templates/nFound.html"
+      .when "/",
+        redirectTo: '/console/'
+      .otherwise templateUrl: "/assets/javascripts/console/templates/nFound.html"
   ]
   routes

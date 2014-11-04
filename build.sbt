@@ -8,7 +8,10 @@ organization in ThisBuild := "com.bf"
 
 version := "2.0.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala).dependsOn(sdk)
+lazy val root = (project in file(".")).enablePlugins(PlayScala, net.litola.SassPlugin).dependsOn(sdk).
+    settings(
+      sassOptions := Seq("--compass")
+    )
 
 lazy val sdk = RootProject(uri(s"https://Arakcheev@bitbucket.org/businessframework/bf-scala-sdk-private.git#$branch"))
 

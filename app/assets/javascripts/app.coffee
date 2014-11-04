@@ -5,10 +5,12 @@
 # Splitting it into several RequireJS modules allows async loading. We cannot take full advantage
 # of RequireJS and lazy-load stuff because the angular modules have their own dependency system.
 #
-define(['angular', 'console'], (angular)  ->
+define(['angular', 'console','wbox'], (angular)  ->
   'use strict'
 
-  app = angular.module('app', ['console'])
+  console.log(document.domain)
+  app = angular.module('app', ['console','wbox'])
+
   app.config ['$locationProvider', ($locationProvider) ->
     $locationProvider.html5Mode(true) #.hashPrefix('!');
   ]
