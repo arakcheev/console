@@ -4,7 +4,7 @@ import models.entities.User
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json.{Json, _}
-import play.api.mvc.{Action, Cookie, DiscardingCookie}
+import play.api.mvc.{Result, Action, Cookie, DiscardingCookie}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -46,11 +46,15 @@ object Registration extends ResultJsonSerializer {
   }
 
   /**
-   * Signin method by two strategies: with email in request body of cripto email cookie.
+   * Signin method by two strategies: with email in request body of crypto email cookie.
    * @return [[ResultJsonSerializer]] with cookies
    */
   def signin = Action.async(parse.tolerantJson) { implicit request =>
     implicit val method = "signin"
+    def result: String => Result = { s =>
+      ok(Json.obj("uuid" -> s)).
+        withCookies(Cookie(User.COOKIE_EMAIL, s, Some(86400)), Cookie(User.COOKIE_AUTH, s))
+    }
     request.body.\("password").validate[String] match {
       case p: JsSuccess[String] =>
         val password = p.get
@@ -59,16 +63,14 @@ object Registration extends ResultJsonSerializer {
             val email = e.get
             User.authenticate(email, password).map {
               case Some(user) =>
-                ok(Json.obj("uuid" -> user.uuid.get)).
-                  withCookies(Cookie(User.COOKIE_EMAIL, user.uuid.get, Some(86400)), Cookie(User.COOKIE_AUTH, user.uuid.get))
+                result.apply(user.uuid.get)
               case None =>
                 bad(s"Bad login/password")
             }.recover(recover)
           case e: JsError =>
             User.authenticate(request, password).map {
               case Some(user) =>
-                ok(Json.obj("uuid" -> user.uuid.get)).
-                  withCookies(Cookie(User.COOKIE_EMAIL, user.uuid.get, Some(86400)), Cookie(User.COOKIE_AUTH, user.uuid.get))
+                result.apply(user.uuid.get)
               case None =>
                 bad(s"Bad cookie/password")
             }.recover(recover)

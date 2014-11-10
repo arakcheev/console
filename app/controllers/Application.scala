@@ -6,9 +6,9 @@ import play.api.mvc._
 
 import scala.concurrent.Future
 
-object Application extends Controller {
+object Application extends ResultJsonSerializer with Secured {
 
-  def index(url: String) = Action {
+  def index(url: String) = Action{  implicit r =>
     import com.bf.sdk.Main._
 
     saveRepo
@@ -37,7 +37,7 @@ object Application extends Controller {
    */
   def jsRoutes(varName: String = "jsRoutes") = /*Cached(_ => "jsRoutes", duration = 1) {*/
     Action { implicit request =>
-      val routes = Registration.routeCache ++ routeCache
+      val routes = Registration.routeCache ++ routeCache ++ AccountControl.routeCache
       Ok(Routes.javascriptRouter(varName)(routes: _*)).as(JAVASCRIPT)
       /*}*/
     }
@@ -85,4 +85,10 @@ trait ResultJsonSerializer extends Controller {
   def futureBad(cause: String)(implicit method: String = "") = {
     Future.successful(bad(cause)(method))
   }
+
+  def redirect(implicit method: String = "")  ={
+    new Status(300).apply(result(info = info(method, 300))).as(ContentTypes.JSON)
+  }
+
+  def futureRedirect(implicit method: String = "") = Future.successful(redirect)
 }

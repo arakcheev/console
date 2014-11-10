@@ -16,5 +16,7 @@ POST        /signup              controllers.Registration.signup
 POST        /signin              controllers.Registration.signin
 GET         /logout              controllers.Registration.logout
 
+GET         /profile             controllers.AccountControl.profile
+
 GET         /*url                controllers.Application.index(url)
 

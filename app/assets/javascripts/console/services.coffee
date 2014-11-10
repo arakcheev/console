@@ -60,6 +60,21 @@ define [
         .error((data, status, headers) =>
           console.log("error logout")
         )
+
+      getProfile : ->
+        deferred = $q.defer()
+        $http.get(jsRoutes.controllers.AccountControl.profile().url)
+        .success((data, status, headers) =>
+          deferred.resolve(data)
+        )
+        .error((data, status, headers) =>
+          console.log(data.result[1])
+          if(data.result[1].status == 300)
+            window.location.replace("/login")
+
+          deferred.reject(data);
+        )
+        deferred.promise
     obj
   ]
   mod

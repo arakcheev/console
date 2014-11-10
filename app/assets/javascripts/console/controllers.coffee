@@ -15,15 +15,7 @@ define ['./services'], (services)->
 
 
     $scope.click = ->
-      ConsoleFactory.registerNewUser()
-      ConsoleFactory.getUser().then(
-        (data) =>
-          console.debug "Promise returned #{data}"
-      ,
-      (error) =>
-        console.error "Error : #{error}"
-      )
-      $scope.user.name = "Click John"
+      UserFactory.getProfile()
 
     $scope.signin = ->
       UserFactory.signin("artem.ft2@gmail.com","1234")

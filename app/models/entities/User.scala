@@ -132,7 +132,20 @@ object User extends MongoDB {
         }
       case None => Future.successful(None)
     }
+  }
 
+  /**
+   * Get user from request
+   * @param request request headers
+   * @return
+   */
+  def fromRequest(request: RequestHeader) = {
+    request.cookies.get(COOKIE_AUTH) match {
+      case Some(cookie) =>
+        byUUID(cookie.value)
+      case None =>
+        Future.successful(None)
+    }
   }
 
 }

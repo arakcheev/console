@@ -14,6 +14,9 @@ define [
       .when "/console/",
         templateUrl: "/assets/javascripts/console/templates/index.html"
         controller: controllers.MainCtrl
+      .when "/login",
+        templateUrl: "/assets/javascripts/console/templates/login.html"
+        controller: controllers.MainCtrl
       .when "/",
         redirectTo: '/console/'
       .otherwise templateUrl: "/assets/javascripts/console/templates/nFound.html"
