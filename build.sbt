@@ -28,7 +28,8 @@ libraryDependencies ++= Seq(
   "org.webjars" % "jquery" % "1.11.1",
   "org.webjars" % "bootstrap" % "3.1.1-2" ,
   "org.webjars" % "angularjs" % "1.2.18" ,
-  "org.webjars" %% "webjars-play" % "2.3.0-2"
+  "org.webjars" %% "webjars-play" % "2.3.0-2",
+  "org.reactivemongo" %% "reactivemongo" % "0.10.5.0.akka23"
 )
 
 scalacOptions in ThisBuild ++= Seq(

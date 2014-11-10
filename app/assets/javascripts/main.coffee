@@ -28,7 +28,7 @@
       "angular-route" : ["../lib/angularjs/angular-route"]
       "angular-cookies" : ["../lib/angularjs/angular-cookies"]
       bootstrap: ["../lib/bootstrap/js/bootstrap"]
-#      jsRoutes: ["/jsroutes"]
+      jsRoutes: ["/jsroutes"]
 
   requirejs.onError = (err) ->
     console.log err
@@ -42,6 +42,7 @@
     "jquery"
     "bootstrap"
     "./app"
+    "jsRoutes"
   ], (angular) ->
     angular.bootstrap document, ["app"]
 
