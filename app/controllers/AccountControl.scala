@@ -3,7 +3,7 @@ package controllers
 /**
  * Created by artem on 10.11.14.
  */
-object AccountControl extends ResultJsonSerializer with Secured{
+object AccountControl extends JsonSerializerController with Secured{
 
 
   def profile = Auth.auth(parse.empty){user => implicit request =>

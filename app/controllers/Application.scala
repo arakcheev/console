@@ -6,7 +6,7 @@ import play.api.mvc._
 
 import scala.concurrent.Future
 
-object Application extends ResultJsonSerializer with Secured {
+object Application extends JsonSerializerController with Secured {
 
   def index(url: String) = Action{  implicit r =>
     import com.bf.sdk.Main._
@@ -42,53 +42,4 @@ object Application extends ResultJsonSerializer with Secured {
       /*}*/
     }
 
-}
-
-trait ResultJsonSerializer extends Controller {
-
-  import play.api.Play.current
-  import play.api.http.ContentTypes
-
-  def recover: PartialFunction[Throwable, Result] = {
-    case e: Exception =>
-      if (play.api.Play.isDev) {
-        InternalServerError(e.getMessage)
-      } else {
-        bad("Internal server error")
-      }
-  }
-
-
-  def info(method: String, status: Int) = Json.obj("status" -> status, "method" -> method)
-
-  def errors(error: String) = Json.obj("code" -> 1, "message" -> error)
-
-  def result(data: JsValue = Json.obj(), info: JsValue = Json.obj(), errors: JsValue = Json.obj()) = Json.obj("result" -> Json.arr(
-    Json.obj(
-      "data" -> data
-    ), info,
-    errors
-  ))
-
-  def ok(js: JsValue)(implicit method: String = "") = {
-    new Status(200).apply(result(js, info(method, 200))).as(ContentTypes.JSON)
-  }
-
-  def futureOk(js: JsValue)(implicit method: String = "") = {
-    Future.successful(ok(js)(method))
-  }
-
-  def bad(cause: String)(implicit method: String = "") = {
-    new Status(400).apply(result(info = info(method, 400), errors = errors(cause))).as(ContentTypes.JSON)
-  }
-
-  def futureBad(cause: String)(implicit method: String = "") = {
-    Future.successful(bad(cause)(method))
-  }
-
-  def redirect(implicit method: String = "")  ={
-    new Status(300).apply(result(info = info(method, 300))).as(ContentTypes.JSON)
-  }
-
-  def futureRedirect(implicit method: String = "") = Future.successful(redirect)
 }

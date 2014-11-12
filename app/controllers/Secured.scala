@@ -9,7 +9,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
  * Created by artem on 10.11.14.
  */
 trait Secured {
-  self: ResultJsonSerializer =>
+  self: JsonSerializerController =>
 
   trait AuthBuilder {
     self =>
@@ -20,7 +20,7 @@ trait Secured {
         User.fromRequest(request).map {
           case Some(user) =>
             f(user)(request)
-          case None => redirect("Invalid Token cookie")
+          case None => bad("Invalid Token cookie")
         }.recover(recover)
       }
     }

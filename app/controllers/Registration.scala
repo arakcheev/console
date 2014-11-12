@@ -11,7 +11,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * Created by artem on 10.11.14.
  */
-object Registration extends ResultJsonSerializer {
+object Registration extends JsonSerializerController {
 
   /**
    * Destroy all cookies
@@ -23,7 +23,7 @@ object Registration extends ResultJsonSerializer {
 
   /**
    * Register new user by email and password
-   * @return [[ResultJsonSerializer]]
+   * @return [[JsonSerializerController]]
    */
   def signup = Action.async(parse.tolerantJson) {
     implicit request =>
@@ -47,7 +47,7 @@ object Registration extends ResultJsonSerializer {
 
   /**
    * Signin method by two strategies: with email in request body of crypto email cookie.
-   * @return [[ResultJsonSerializer]] with cookies
+   * @return [[JsonSerializerController]] with cookies
    */
   def signin = Action.async(parse.tolerantJson) { implicit request =>
     implicit val method = "signin"
