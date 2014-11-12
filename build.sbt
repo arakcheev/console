@@ -29,7 +29,8 @@ libraryDependencies ++= Seq(
   "org.webjars" % "bootstrap" % "3.1.1-2" ,
   "org.webjars" % "angularjs" % "1.2.18" ,
   "org.webjars" %% "webjars-play" % "2.3.0-2",
-  "org.reactivemongo" %% "reactivemongo" % "0.10.5.0.akka23"
+  "org.reactivemongo" %% "reactivemongo" % "0.10.5.0.akka23",
+  "com.amazonaws" % "aws-java-sdk" % "1.9.4"
 )
 
 scalacOptions in ThisBuild ++= Seq(
