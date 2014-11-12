@@ -1,13 +1,32 @@
 package controllers
 
+import models.entities.User
+import play.api.libs.json.{JsSuccess, JsError, Json}
+
 /**
  * Created by artem on 10.11.14.
  */
-object AccountControl extends JsonSerializerController with Secured{
+object AccountControl extends JsonSerializerController with Secured {
 
 
-  def profile = Auth.auth(parse.empty){user => implicit request =>
-    Ok(s"$user")
+  /**
+   * Get user account as json
+   * @return
+   */
+  def account = Auth.auth(parse.empty) { user => implicit request =>
+    ok(user.getAccountAsJson)("getProfile")
+  }
+
+  /**
+   * Update account info. Post request with JSON body: {"name":"attr name","value": "attr value"}
+   * @return
+   */
+  def update = Auth.auth(parse.tolerantJson) { user => implicit request =>
+    val name = request.body.\("name").as[String]
+    val value = request.body.\("value").as[String]
+    User.setAccountValue(user.id.get.stringify, name, value).map { le =>
+      ok(Json.obj("updated" -> true))
+    }.getOrElse(bad("Error change params"))
   }
 
   /**

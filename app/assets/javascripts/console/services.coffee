@@ -63,14 +63,31 @@ define [
 
       getProfile : ->
         deferred = $q.defer()
-        $http.get(jsRoutes.controllers.AccountControl.profile().url)
+        $http.get(jsRoutes.controllers.AccountControl.account().url)
         .success((data, status, headers) =>
           deferred.resolve(data)
         )
         .error((data, status, headers) =>
           console.log(data.result[1])
-          if(data.result[1].status == 300)
-            window.location.replace("/login")
+#          if(data.result[1].status == 300)
+#            window.location.replace("/login")
+
+          deferred.reject(data);
+        )
+        deferred.promise
+
+      update: (name,value)->
+        deferred = $q.defer()
+        $http.post(jsRoutes.controllers.AccountControl.update().url,
+          "name": name
+          "value": value)
+        .success((data, status, headers) =>
+          deferred.resolve(data)
+        )
+        .error((data, status, headers) =>
+          console.log(data.result[1])
+          #          if(data.result[1].status == 300)
+          #            window.location.replace("/login")
 
           deferred.reject(data);
         )

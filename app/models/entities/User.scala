@@ -1,14 +1,15 @@
 package models.entities
 
 import models.SecureGen
-import models.entities.db.MongoDB
+import models.db.MongoDB
 import play.api.Logger
 import play.api.libs.Crypto
+import play.api.libs.json.{JsString, Json}
 import play.api.mvc.RequestHeader
-import reactivemongo.bson.{BSONDocumentReader, BSONDocumentWriter, BSONDocument, BSONObjectID}
+import reactivemongo.bson.{BSONDocument, BSONDocumentReader, BSONDocumentWriter, BSONObjectID}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Random
 
 /**
  * Created by artem on 10.11.14.
@@ -16,13 +17,28 @@ import scala.util.Random
 case class User(var id: Option[BSONObjectID], var uuid: Option[String], var email: Option[String],
                 var password: Option[String], var creditCards: Option[BSONDocument], var account: Option[BSONDocument]) {
 
+  def getAccountAsJson = {
+    account.map { doc =>
+      Json.obj(
+        "phone_work" -> JsString(doc.getAs[String]("phone_work").getOrElse("")),
+        "phone_home" -> JsString(doc.getAs[String]("phone_home").getOrElse("")),
+        "index" -> JsString(doc.getAs[String]("index").getOrElse("")),
+        "country" -> JsString(doc.getAs[String]("country").getOrElse("")),
+        "region" -> JsString(doc.getAs[String]("region").getOrElse("")),
+        "city" -> JsString(doc.getAs[String]("city").getOrElse("")),
+        "address" -> JsString(doc.getAs[String]("address").getOrElse("")),
+        "company_name" -> JsString(doc.getAs[String]("company_name").getOrElse("")),
+        "main_srceen_url" -> JsString(doc.getAs[String]("main_srceen_url").getOrElse(""))
+      )
+    }.getOrElse(Json.obj())
+  }
+
+
 }
 
 object User extends MongoDB {
 
   import reactivemongo.api.collections.default.BSONCollection
-  import play.api.libs.json._
-  import play.api.libs.functional.syntax._
 
   val collection = db.collection[BSONCollection]("user")
 
@@ -145,6 +161,21 @@ object User extends MongoDB {
         byUUID(cookie.value)
       case None =>
         Future.successful(None)
+    }
+  }
+
+  def setAccountValue(id: String, name: String, value: String) = {
+    val selector = BSONDocument("_id" -> BSONObjectID(id))
+    name match {
+      case "phone_work" | "phone_home" | "index" | "country" | "region" | "city" | "address" | "company_name" | "main_srceen_url" =>
+        val update = BSONDocument(
+          "$set" -> BSONDocument(
+            "account." + name -> value.toString
+          )
+        )
+        Some(collection.update(selector, update))
+
+      case _ => None
     }
   }
 

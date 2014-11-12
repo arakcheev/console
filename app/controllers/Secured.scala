@@ -1,6 +1,7 @@
 package controllers
 
 import models.entities.User
+import play.api.Logger
 import play.api.mvc.{BodyParser, Action, Request}
 import play.api.mvc.Result
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -20,7 +21,7 @@ trait Secured {
         User.fromRequest(request).map {
           case Some(user) =>
             f(user)(request)
-          case None => bad("Invalid Token cookie")
+          case None => bad("Invalid Token cookie2")
         }.recover(recover)
       }
     }

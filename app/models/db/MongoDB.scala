@@ -1,4 +1,4 @@
-package models.entities.db
+package models.db
 
 /**
  * Created by artem on 10.11.14.
