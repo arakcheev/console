@@ -1,12 +1,16 @@
 package models.entities
 
+import java.io.File
+
 import models.SecureGen
 import models.db.MongoDB
+import models.services.aws.S3
 import play.api.Logger
 import play.api.libs.Crypto
 import play.api.libs.json.{JsString, Json}
 import play.api.mvc.RequestHeader
 import reactivemongo.bson.{BSONDocument, BSONDocumentReader, BSONDocumentWriter, BSONObjectID}
+import reactivemongo.core.commands.LastError
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -173,10 +177,14 @@ object User extends MongoDB {
             "account." + name -> value.toString
           )
         )
-        Some(collection.update(selector, update))
+        collection.update(selector, update)
 
-      case _ => None
+      case _ => Future.successful(LastError.apply(BSONDocument.empty).b)
     }
+  }
+
+  def uploadFile(user: User,file: File) = {
+    S3.put(file,file.getName,"console/avatars")
   }
 
 }

@@ -16,7 +16,7 @@ define ['./services'], (services)->
 
     $scope.click = ->
       UserFactory.getProfile()
-      UserFactory.update("main_srceen_url","sdfsdfsdfsf")
+      UserFactory.update("address","asdasda asdas asd asdsa das")
 
     $scope.signin = ->
       UserFactory.signin("artem.ft2@gmail.com","1234")

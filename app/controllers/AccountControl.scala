@@ -2,6 +2,7 @@ package controllers
 
 import models.entities.User
 import play.api.libs.json.{JsSuccess, JsError, Json}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Created by artem on 10.11.14.
@@ -21,12 +22,23 @@ object AccountControl extends JsonSerializerController with Secured {
    * Update account info. Post request with JSON body: {"name":"attr name","value": "attr value"}
    * @return
    */
-  def update = Auth.auth(parse.tolerantJson) { user => implicit request =>
+  def update = Auth.async(parse.tolerantJson) { user => implicit request =>
     val name = request.body.\("name").as[String]
     val value = request.body.\("value").as[String]
     User.setAccountValue(user.id.get.stringify, name, value).map { le =>
       ok(Json.obj("updated" -> true))
-    }.getOrElse(bad("Error change params"))
+    }.recover(recover)
+  }
+
+  def uploadFile = Auth.async(parse.multipartFormData) { user => implicit request =>
+    request.body.file("file") match {
+      case Some(file) =>
+        User.uploadFile(user, file.ref.file).map { result =>
+          ok(Json.obj("file" -> result._1))
+        }.recover(recover)
+      case None => futureBad("Error uploading file")
+    }
+
   }
 
   /**
