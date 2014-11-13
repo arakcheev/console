@@ -1,7 +1,9 @@
 package controllers
 
 import models.entities.User
-import play.api.libs.json.{JsSuccess, JsError, Json}
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
+import play.api.libs.json._
 import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
@@ -57,18 +59,32 @@ object AccountControl extends JsonSerializerController with Secured {
 
   def addCreditCard = Auth.async(parse.tolerantJson) { user => implicit request =>
     implicit val method = "addCreditCard"
-    val number = request.body.\("number").as[String]
-    val validM = request.body.\("validM").as[Int]
-    val validY = request.body.\("validY").as[Int]
-    val name = request.body.\("name").as[String]
-    val cv2 = request.body.\("cv2").as[Int]
-    User.addCreditCard(user, number, validM, validY, name, cv2).map { le =>
-      ok(Json.obj())
+    request.body.validate(CreditCardJson) match {
+      case c: JsSuccess[CreditCard] =>
+        val card = c.get
+        User.addCreditCard(user, card.number, card.validM, card.validY, card.name, card.cv2).map { le =>
+          ok(Json.obj())
+        }
+      case JsError(error) =>
+        futureBad("Error parse json")
     }
   }
 
   def getCreditCards = Auth.auth(parse.empty) { user => implicit request =>
     ok(user.getCreditCardsAsJson)("getCreditCards")
+  }
+
+  def updateCreditCard(id: String) = Auth.async(parse.tolerantJson) { user => implicit request =>
+    implicit val method = "updateCreditCard"
+    request.body.validate(CreditCardJson) match {
+      case c: JsSuccess[CreditCard] =>
+        val card = c.get
+        User.updateCreditCard(id, card.number, card.validM, card.validY, card.name, card.cv2, card.status.getOrElse(0)).map { le =>
+          ok(Json.obj())
+        }
+      case JsError(error) =>
+        futureBad("Error parse json")
+    }
   }
 
   /**
@@ -85,5 +101,18 @@ object AccountControl extends JsonSerializerController with Secured {
       }
     }
   }
+
+  /** Used for obtaining the CreditCard from http JSON request */
+  case class CreditCard(number: String, validM: Int, validY: Int, name: String, cv2: Int, status: Option[Int])
+
+  /** JSON reader for [[CreditCard]]. */
+  implicit val CreditCardJson = (
+    (__ \ "number").read[String](maxLength[String](16)) ~
+      (__ \ "validM").read[Int] ~
+      (__ \ "validY").read[Int] ~
+      (__ \ "name").read[String] ~
+      (__ \ "cv2").read[Int] ~
+      (__ \ "status").readNullable[Int]
+    )((number, validM, validY, name, cv2, status) => CreditCard(number, validM, validY, name, cv2, status))
 
 }

@@ -123,6 +123,24 @@ define [
           deferred.reject(data);
         )
         deferred.promise
+
+      updateCreditCard: (id,number, validM, validY, name, cv2,status) ->
+        deferred = $q.defer()
+        $http.post(jsRoutes.controllers.AccountControl.updateCreditCard(id).url,
+          "number": number
+          "validM": validM
+          "validY": validY
+          "name": name
+          "cv2": cv2
+          "status": status)
+        .success((data, status, headers) =>
+          deferred.resolve(data)
+        )
+        .error((data, status, headers) =>
+          console.log(data.result[1])
+          deferred.reject(data);
+        )
+        deferred.promise
     obj
   ]
   mod

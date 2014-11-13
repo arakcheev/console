@@ -48,8 +48,7 @@ case class User(var id: Option[BSONObjectID], var uuid: Option[String], var emai
           "number" -> bsonDoc.getAs[String]("number"),
           "validM" -> bsonDoc.getAs[Int]("validM"),
           "validY" -> bsonDoc.getAs[Int]("validY"),
-          "name" -> bsonDoc.getAs[String]("name"),
-          "cv2" -> bsonDoc.getAs[Int]("cv2")
+          "name" -> bsonDoc.getAs[String]("name")
         )
       }.toList
     }.getOrElse(Nil))
@@ -190,7 +189,7 @@ object User extends MongoDB {
     request.cookies.get(COOKIE_AUTH) match {
       case Some(cookie) =>
         //todo user status
-        byUUID(cookie.value)//.map(_.filter(_.status > 0))
+        byUUID(cookie.value) //.map(_.filter(_.status > 0))
       case None =>
         Future.successful(None)
     }
@@ -265,6 +264,40 @@ object User extends MongoDB {
         )
       )
     )
+    collection.update(selector, update)
+  }
+
+  /**
+   * Update credit card
+   * @param cardId card id
+   * @param number new number
+   * @param validM new valid month
+   * @param validY new valid year
+   * @param name new cardholder name
+   * @param cv2 new cv2 code
+   * @param status new status of card
+   * @return
+   */
+  def updateCreditCard(cardId: String, number: String, validM: Int, validY: Int, name: String, cv2: Int, status: Int) = {
+    val selector = BSONDocument("creditCards" ->
+      BSONDocument(
+        "$elemMatch" -> BSONDocument(
+          "_id" -> BSONObjectID(cardId)
+        )
+      )
+    )
+    println(BSONDocument.pretty(selector))
+    val update = BSONDocument(
+      "$set" -> BSONDocument(
+        "creditCards.$.status" -> BSONInteger(status),
+        "creditCards.$.number" -> number,
+        "creditCards.$.validM" -> BSONInteger(validM),
+        "creditCards.$.validY" -> BSONInteger(validY),
+        "creditCards.$.name" -> name,
+        "creditCards.$.cv2" -> BSONInteger(cv2)
+      )
+    )
+
     collection.update(selector, update)
   }
 
