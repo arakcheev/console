@@ -124,7 +124,7 @@ define [
         )
         deferred.promise
 
-      updateCreditCard: (id,number, validM, validY, name, cv2,status) ->
+      updateCreditCard: (id, number, validM, validY, name, cv2, status) ->
         deferred = $q.defer()
         $http.post(jsRoutes.controllers.AccountControl.updateCreditCard(id).url,
           "number": number
@@ -143,4 +143,30 @@ define [
         deferred.promise
     obj
   ]
+
+  mod.factory "TaskFactory", ['$http', '$q', ($http, $q)->
+    obj =
+      newTask: (name, fromDate, toDate, touser = "", system = "", docType = "", docID = "")->
+        deferred = $q.defer()
+        $http.post(jsRoutes.controllers.TaskControl.newTask().url,
+          "name": name
+          "fromDate": fromDate
+          "toDate": toDate
+          "touser": touser
+          "system": system
+          "docType": docType,
+          "docID": docID)
+        .success((data, status, headers) =>
+          deferred.resolve(data)
+        )
+        .error((data, status, headers) =>
+          console.log(data.result[1])
+          deferred.reject(data);
+        )
+        deferred.promise
+
+    obj
+  ]
+
+
   mod

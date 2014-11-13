@@ -37,7 +37,7 @@ object Application extends JsonSerializerController with Secured {
    */
   def jsRoutes(varName: String = "jsRoutes") = /*Cached(_ => "jsRoutes", duration = 1) {*/
     Action { implicit request =>
-      val routes = Registration.routeCache ++ routeCache ++ AccountControl.routeCache
+      val routes = Registration.routeCache ++ routeCache ++ AccountControl.routeCache ++ TaskControl.routeCache
       Ok(Routes.javascriptRouter(varName)(routes: _*)).as(JAVASCRIPT)
       /*}*/
     }

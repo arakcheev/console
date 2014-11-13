@@ -57,6 +57,10 @@ object AccountControl extends JsonSerializerController with Secured {
     }
   }
 
+  /**
+   * Add new credit card. see [[CreditCardJson]]
+   * @return
+   */
   def addCreditCard = Auth.async(parse.tolerantJson) { user => implicit request =>
     implicit val method = "addCreditCard"
     request.body.validate(CreditCardJson) match {
@@ -74,6 +78,11 @@ object AccountControl extends JsonSerializerController with Secured {
     ok(user.getCreditCardsAsJson)("getCreditCards")
   }
 
+  /**
+   *
+   * @param id credit card id
+   * @return
+   */
   def updateCreditCard(id: String) = Auth.async(parse.tolerantJson) { user => implicit request =>
     implicit val method = "updateCreditCard"
     request.body.validate(CreditCardJson) match {

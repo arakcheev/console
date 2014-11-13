@@ -44,6 +44,7 @@ case class User(var id: Option[BSONObjectID], var uuid: Option[String], var emai
       array.values.map { doc =>
         val bsonDoc = doc.seeAsOpt[BSONDocument].getOrElse(BSONDocument.empty)
         Json.obj(
+          "id" -> bsonDoc.getAs[BSONObjectID]("_id").map(_.stringify),
           "status" -> bsonDoc.getAs[Int]("status"),
           "number" -> bsonDoc.getAs[String]("number"),
           "validM" -> bsonDoc.getAs[Int]("validM"),
@@ -286,7 +287,6 @@ object User extends MongoDB {
         )
       )
     )
-    println(BSONDocument.pretty(selector))
     val update = BSONDocument(
       "$set" -> BSONDocument(
         "creditCards.$.status" -> BSONInteger(status),
