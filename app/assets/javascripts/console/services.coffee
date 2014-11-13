@@ -6,9 +6,9 @@ define [
 ], (angular) ->
   "use strict"
   mod = angular.module('console.factory', []);
-  mod.factory "ConsoleFactory", ['$http','$q', ($http,$q)->
+  mod.factory "ConsoleFactory", ['$http', '$q', ($http, $q)->
     obj =
-      getUser:  ->
+      getUser: ->
         deferred = $q.defer()
         $http.get("/user")
         .success((data, status, headers) =>
@@ -37,9 +37,9 @@ define [
     obj
   ]
 
-  mod.factory "UserFactory",['$http','$q', ($http,$q)->
+  mod.factory "UserFactory", ['$http', '$q', ($http, $q)->
     obj =
-      signin: (email ="",password)->
+      signin: (email = "", password)->
         deferred = $q.defer()
         $http.post(jsRoutes.controllers.Registration.signin().url,
           "email": email
@@ -61,7 +61,7 @@ define [
           console.log("error logout")
         )
 
-      getProfile : ->
+      getProfile: ->
         deferred = $q.defer()
         $http.get(jsRoutes.controllers.AccountControl.account().url)
         .success((data, status, headers) =>
@@ -69,14 +69,14 @@ define [
         )
         .error((data, status, headers) =>
           console.log(data.result[1])
-#          if(data.result[1].status == 300)
-#            window.location.replace("/login")
+          #          if(data.result[1].status == 300)
+          #            window.location.replace("/login")
 
           deferred.reject(data);
         )
         deferred.promise
 
-      update: (name,value)->
+      update: (name, value)->
         deferred = $q.defer()
         $http.post(jsRoutes.controllers.AccountControl.update().url,
           "name": name
@@ -93,7 +93,7 @@ define [
         )
         deferred.promise
 
-      changePassword: (oldp,newp) ->
+      changePassword: (oldp, newp) ->
         deferred = $q.defer()
         $http.post(jsRoutes.controllers.AccountControl.changePassword().url,
           "oldPassword": oldp
@@ -107,6 +107,22 @@ define [
         )
         deferred.promise
 
+      addCreditCard: (number, validM, validY, name, cv2) ->
+        deferred = $q.defer()
+        $http.post(jsRoutes.controllers.AccountControl.addCreditCard().url,
+          "number": number
+          "validM": validM
+          "validY": validY
+          "name": name
+          "cv2": cv2)
+        .success((data, status, headers) =>
+          deferred.resolve(data)
+        )
+        .error((data, status, headers) =>
+          console.log(data.result[1])
+          deferred.reject(data);
+        )
+        deferred.promise
     obj
   ]
   mod

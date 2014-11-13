@@ -15,11 +15,12 @@ define ['./services'], (services)->
 
 
     $scope.click = ->
+      ConsoleFactory.registerNewUser()
+#      UserFactory.addCreditCard("1234",10,17,"Aleksey Khudoshin",961)
       UserFactory.getProfile()
-      UserFactory.changePassword("1234","123456")
 
     $scope.signin = ->
-      UserFactory.signin("artem.ft2@gmail.com","123456")
+      UserFactory.signin("artem.ft2@gmail.com","1234")
 
     $scope.logout = ->
       UserFactory.logout()

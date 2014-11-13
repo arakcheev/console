@@ -9,7 +9,7 @@ import play.api.Logger
 import play.api.libs.Crypto
 import play.api.libs.json.{JsString, Json}
 import play.api.mvc.RequestHeader
-import reactivemongo.bson.{BSONDocument, BSONDocumentReader, BSONDocumentWriter, BSONObjectID}
+import reactivemongo.bson._
 import reactivemongo.core.commands.LastError
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -19,7 +19,8 @@ import scala.concurrent.Future
  * Created by artem on 10.11.14.
  */
 case class User(var id: Option[BSONObjectID], var uuid: Option[String], var email: Option[String],
-                var password: Option[String], var creditCards: Option[BSONDocument], var account: Option[BSONDocument]) {
+                var password: Option[String], var creditCards: Option[BSONArray], var account: Option[BSONDocument],
+                var avatar: Option[String], var status: Int, var subUser: Boolean, var users: Option[BSONArray]) {
 
   def getAccountAsJson = {
     account.map { doc =>
@@ -38,6 +39,22 @@ case class User(var id: Option[BSONObjectID], var uuid: Option[String], var emai
   }
 
 
+  def getCreditCardsAsJson = {
+    Json.toJson(creditCards.map { array =>
+      array.values.map { doc =>
+        val bsonDoc = doc.seeAsOpt[BSONDocument].getOrElse(BSONDocument.empty)
+        Json.obj(
+          "status" -> bsonDoc.getAs[Int]("status"),
+          "number" -> bsonDoc.getAs[String]("number"),
+          "validM" -> bsonDoc.getAs[Int]("validM"),
+          "validY" -> bsonDoc.getAs[Int]("validY"),
+          "name" -> bsonDoc.getAs[String]("name"),
+          "cv2" -> bsonDoc.getAs[Int]("cv2")
+        )
+      }.toList
+    }.getOrElse(Nil))
+  }
+
 }
 
 object User extends MongoDB {
@@ -54,11 +71,15 @@ object User extends MongoDB {
     def write(user: User): BSONDocument = {
       BSONDocument(
         "_id" -> user.id.getOrElse(BSONObjectID.generate),
-        "email" -> user.email.getOrElse(""),
         "uuid" -> user.uuid.getOrElse(""),
+        "email" -> user.email.getOrElse(""),
         "password" -> user.password.getOrElse(""),
-        "creditCards" -> user.creditCards.getOrElse(BSONDocument.empty),
-        "account" -> user.account.getOrElse(BSONDocument.empty)
+        "creditCards" -> user.creditCards.getOrElse(BSONArray.empty),
+        "account" -> user.account.getOrElse(BSONDocument.empty),
+        "avatar" -> user.avatar.getOrElse(""),
+        "status" -> BSONInteger(user.status),
+        "subUser" -> user.subUser,
+        "users" -> user.users.getOrElse(BSONArray.empty)
       )
     }
   }
@@ -70,8 +91,12 @@ object User extends MongoDB {
         doc.getAs[String]("uuid"),
         doc.getAs[String]("email"),
         doc.getAs[String]("password"),
-        doc.getAs[BSONDocument]("creditCards"),
-        doc.getAs[BSONDocument]("account")
+        doc.getAs[BSONArray]("creditCards"),
+        doc.getAs[BSONDocument]("account"),
+        doc.getAs[String]("avatar"),
+        doc.getAs[Int]("status").getOrElse(0),
+        doc.getAs[Boolean]("subUser").getOrElse(true),
+        doc.getAs[BSONArray]("users")
       )
     }
   }
@@ -83,7 +108,7 @@ object User extends MongoDB {
       case None =>
         val uuid = SecureGen.nextSessionId()
         //todo Crypto with shared key
-        collection.save(User(None, Some(uuid), Some(email), Some(Crypto.encryptAES(password)), None, None)).map { le =>
+        collection.save(User(None, Some(uuid), Some(email), Some(Crypto.encryptAES(password)), None, None, None, 1, false, None)).map { le =>
           if (le.inError) {
             Logger.logger.error(s"Mongo error: ${le.message}")
             (uuid, Some("Internal server error"))
@@ -164,7 +189,8 @@ object User extends MongoDB {
   def fromRequest(request: RequestHeader) = {
     request.cookies.get(COOKIE_AUTH) match {
       case Some(cookie) =>
-        byUUID(cookie.value)
+        //todo user status
+        byUUID(cookie.value)//.map(_.filter(_.status > 0))
       case None =>
         Future.successful(None)
     }
@@ -212,6 +238,34 @@ object User extends MongoDB {
         }
       }
     }.getOrElse(Future.successful(Json.obj("updated" -> false)))
+  }
+
+  /**
+   * Add new credit card
+   * @param user
+   * @param number
+   * @param validM
+   * @param validY
+   * @param name
+   * @param cv2
+   * @return
+   */
+  def addCreditCard(user: User, number: String, validM: Int, validY: Int, name: String, cv2: Int) = {
+    val selector = BSONDocument("_id" -> user.id.get)
+    val update = BSONDocument(
+      "$addToSet" -> BSONDocument(
+        "creditCards" -> BSONDocument(
+          "_id" -> BSONObjectID.generate,
+          "status" -> BSONInteger(0),
+          "number" -> number,
+          "validM" -> BSONInteger(validM),
+          "validY" -> BSONInteger(validY),
+          "name" -> name,
+          "cv2" -> BSONInteger(cv2)
+        )
+      )
+    )
+    collection.update(selector, update)
   }
 
 }

@@ -22,7 +22,7 @@ trait Secured {
         User.fromRequest(request).map {
           case Some(user) =>
             f(user)(request)
-          case None => bad("Invalid Token cookie2")
+          case None => bad("Invalid Token cookie")
         }.recover(recover)
       }
     }
@@ -33,7 +33,7 @@ trait Secured {
         User.fromRequest(request).flatMap {
           case Some(user) =>
             f(user)(request)
-          case None => futureBad("Invalid Token cookie2")
+          case None => futureBad("Invalid Token cookie")
         }.recover(recover)
       }
     }

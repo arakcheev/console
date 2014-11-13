@@ -17,9 +17,11 @@ POST        /signin                        controllers.Registration.signin
 GET         /logout                        controllers.Registration.logout
 
 GET         /profile                       controllers.AccountControl.account
+GET         /profile/creditCards           controllers.AccountControl.getCreditCards
 POST        /profile/upload                controllers.AccountControl.uploadFile
 POST        /profile/update                controllers.AccountControl.update
 POST        /profile/changepassword        controllers.AccountControl.changePassword
+POST        /profile/addCreditCard         controllers.AccountControl.addCreditCard
 
 GET         /*url                          controllers.Application.index(url)
 
