@@ -19,31 +19,18 @@ object TaskControl extends JsonSerializerController with Secured {
         (__ \ "toUser").readNullable[String] ~
         (__ \ "system").read[String] ~
         (__ \ "docType").read[String] ~
-        (__ \ "docID").read[String])((name, fromDate, toDate, toUser, system, docType, docID) => Task(user, name, fromDate.toLong, toDate.toLong, toUser, system, docType, docID))) match {
+        (__ \ "docID").read[String])((name, fromDate, toDate, toUser, system, docType, docID) =>
+        Task(user, name, fromDate.toLong, toDate.toLong, toUser, system, docType, docID))) match {
       case c: JsSuccess[Task] =>
-        val task = c.get
-        Task.save(task).map { id =>
+        Task.save(c.get).map { id =>
           ok(Json.obj(
             "id" -> id
           ))
-        }
+        }.recover(recover)
       case JsError(error) =>
         futureBad("Error parse json")
     }
   }
 
-  /**
-   * Retrieves all routes via reflection.
-   * http://stackoverflow.com/questions/12012703/less-verbose-way-of-generating-play-2s-javascript-router
-   * @todo If you have controllers in multiple packages, you need to add each package here.
-   */
-  val routeCache = {
-    val jsRoutesClass = classOf[routes.javascript]
-    val controllers = jsRoutesClass.getFields.map(_.get(null))
-    controllers.flatMap { controller =>
-      controller.getClass.getDeclaredMethods.map { action =>
-        action.invoke(controller).asInstanceOf[play.core.Router.JavascriptReverseRoute]
-      }
-    }
-  }
+
 }

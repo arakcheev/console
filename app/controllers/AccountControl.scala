@@ -96,20 +96,6 @@ object AccountControl extends JsonSerializerController with Secured {
     }
   }
 
-  /**
-   * Retrieves all routes via reflection.
-   * http://stackoverflow.com/questions/12012703/less-verbose-way-of-generating-play-2s-javascript-router
-   * @todo If you have controllers in multiple packages, you need to add each package here.
-   */
-  val routeCache = {
-    val jsRoutesClass = classOf[routes.javascript]
-    val controllers = jsRoutesClass.getFields.map(_.get(null))
-    controllers.flatMap { controller =>
-      controller.getClass.getDeclaredMethods.map { action =>
-        action.invoke(controller).asInstanceOf[play.core.Router.JavascriptReverseRoute]
-      }
-    }
-  }
 
   /** Used for obtaining the CreditCard from http JSON request */
   case class CreditCard(number: String, validM: Int, validY: Int, name: String, cv2: Int, status: Option[Int])

@@ -13,6 +13,20 @@ trait JsonSerializerController extends Controller {
   import play.api.Play.current
   import play.api.http.ContentTypes
 
+  /**
+   * Retrieves all routes via reflection.
+   * http://stackoverflow.com/questions/12012703/less-verbose-way-of-generating-play-2s-javascript-router
+   */
+  val routeCache = {
+    val jsRoutesClass = classOf[routes.javascript]
+    val controllers = jsRoutesClass.getFields.map(_.get(null))
+    controllers.flatMap { controller =>
+      controller.getClass.getDeclaredMethods.map { action =>
+        action.invoke(controller).asInstanceOf[play.core.Router.JavascriptReverseRoute]
+      }
+    }
+  }
+
   def recover: PartialFunction[Throwable, Result] = {
     case e: Exception =>
       if (play.api.Play.isDev) {
