@@ -82,6 +82,7 @@ object User extends MongoDB {
         Future.successful(("", Some("User already exists")))
       case None =>
         val uuid = SecureGen.nextSessionId()
+        //todo Crypto with shared key
         collection.save(User(None, Some(uuid), Some(email), Some(Crypto.encryptAES(password)), None, None)).map { le =>
           if (le.inError) {
             Logger.logger.error(s"Mongo error: ${le.message}")
@@ -118,6 +119,7 @@ object User extends MongoDB {
    * @return Future[Boolean]
    */
   private def auth(user: User, password: String) = {
+    //todo Crypto with shared key
     if (user.password.filter(_ == Crypto.encryptAES(password)).isDefined) {
       Some(user)
     } else None
@@ -183,8 +185,33 @@ object User extends MongoDB {
     }
   }
 
-  def uploadFile(user: User,file: File) = {
-    S3.put(file,file.getName,"console/avatars")
+  def uploadFile(user: User, file: File) = {
+    S3.put(file, file.getName, "console/avatars")
+  }
+
+  /**
+   * Change user password
+   * @param user user ot change password
+   * @param newPassword
+   * @param oldPassword
+   * @return Json with boolen result
+   */
+  def changePassword(user: User, newPassword: String, oldPassword: String) = {
+    user.password.filter(_ == Crypto.encryptAES(oldPassword)).map { _ =>
+      val selector = BSONDocument("_id" -> user.id.get)
+      val update = BSONDocument(
+        "$set" -> BSONDocument(
+          "password" -> Crypto.encryptAES(newPassword)
+        )
+      )
+      collection.update(selector, update).map { le =>
+        if (le.inError) {
+          Json.obj("updated" -> false)
+        } else {
+          Json.obj("updated" -> true)
+        }
+      }
+    }.getOrElse(Future.successful(Json.obj("updated" -> false)))
   }
 
 }

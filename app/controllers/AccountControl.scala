@@ -38,7 +38,18 @@ object AccountControl extends JsonSerializerController with Secured {
         }.recover(recover)
       case None => futureBad("Error uploading file")
     }
+  }
 
+  /**
+   * Change user password. POST request with json {newPassword: "123456", oldPassword: "1234"}
+   * @return
+   */
+  def changePassword = Auth.async(parse.tolerantJson) { user => implicit request =>
+    val newPassword = request.body.\("newPassword").as[String]
+    val oldPassword = request.body.\("oldPassword").as[String]
+    User.changePassword(user, newPassword, oldPassword).map { js =>
+      ok(js)
+    }
   }
 
   /**

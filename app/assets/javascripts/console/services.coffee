@@ -92,6 +92,21 @@ define [
           deferred.reject(data);
         )
         deferred.promise
+
+      changePassword: (oldp,newp) ->
+        deferred = $q.defer()
+        $http.post(jsRoutes.controllers.AccountControl.changePassword().url,
+          "oldPassword": oldp
+          "newPassword": newp)
+        .success((data, status, headers) =>
+          deferred.resolve(data)
+        )
+        .error((data, status, headers) =>
+          console.log(data.result[1])
+          deferred.reject(data);
+        )
+        deferred.promise
+
     obj
   ]
   mod

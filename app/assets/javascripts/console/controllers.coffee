@@ -16,10 +16,10 @@ define ['./services'], (services)->
 
     $scope.click = ->
       UserFactory.getProfile()
-      UserFactory.update("address","asdasda asdas asd asdsa das")
+      UserFactory.changePassword("1234","123456")
 
     $scope.signin = ->
-      UserFactory.signin("artem.ft2@gmail.com","1234")
+      UserFactory.signin("artem.ft2@gmail.com","123456")
 
     $scope.logout = ->
       UserFactory.logout()
