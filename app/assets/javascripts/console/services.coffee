@@ -165,6 +165,18 @@ define [
         )
         deferred.promise
 
+      list : ->
+        deferred = $q.defer()
+        $http.get(jsRoutes.controllers.TaskControl.list().url)
+        .success((data, status, headers) =>
+          deferred.resolve(data)
+        )
+        .error((data, status, headers) =>
+          console.log(data.result[1])
+          deferred.reject(data);
+        )
+        deferred.promise
+
     obj
   ]
 

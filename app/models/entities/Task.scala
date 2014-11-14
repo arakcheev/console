@@ -1,18 +1,9 @@
 package models.entities
 
-import models.SecureGen
 import models.db.MongoDB
-import models.entities.User._
-import models.services.aws.S3
-import play.api.Logger
-import play.api.libs.Crypto
-import play.api.libs.json.{JsString, Json}
-import play.api.mvc.RequestHeader
 import reactivemongo.bson._
-import reactivemongo.core.commands.LastError
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 /**
  * Created by artem on 13.11.14.
@@ -83,5 +74,12 @@ object Task extends MongoDB {
     }
   }
 
+
+  def list(user: User) = {
+    val selector = BSONDocument(
+      "$or" -> BSONArray(BSONDocument("user" -> user.id.get.stringify), BSONDocument("toUser" -> user.id.get.stringify))
+    )
+    collection.find(selector).cursor[Task].collect[List]()
+  }
 
 }

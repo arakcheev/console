@@ -24,6 +24,7 @@ POST        /profile/changepassword                controllers.AccountControl.ch
 POST        /profile/creditCards/update/:id        controllers.AccountControl.updateCreditCard(id: String)
 POST        /profile/creditCards/add               controllers.AccountControl.addCreditCard
 
+GET         /task                                  controllers.TaskControl.list
 POST        /task/new                              controllers.TaskControl.newTask
 
 GET         /*url                                  controllers.Application.index(url)

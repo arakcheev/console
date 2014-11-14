@@ -32,5 +32,22 @@ object TaskControl extends JsonSerializerController with Secured {
     }
   }
 
+  def list = Auth.async(parse.anyContent){ user => implicit request =>
+      Task.list(user).map{ tasks =>
+        ok(Json.toJson(tasks.map{task =>
+          Json.obj(
+            "_id" -> task.id.get.stringify,
+            "name" -> task.name,
+            "fromDate" -> task.fromDate,
+            "toDate" -> task.toDate,
+            "system" -> task.system,
+            "docType" -> task.docType,
+            "docID" -> task.docID,
+            "toUser" -> task.toUser
+          )
+        }))
+      }.recover(recover)
+  }
+
 
 }

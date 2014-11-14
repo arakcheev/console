@@ -22,7 +22,11 @@ define ['./services'], (services)->
       UserFactory.signin("artem.ft2@gmail.com", "1234")
 
     $scope.newTask = ->
-      TaskFactory.newTask("New task",new Date().getTime()+1000,new Date().getTime()+2000,"","","","")
+      TaskFactory.newTask("New task", new Date().getTime() * 1000 + 1000, new Date().getTime() * 1000 + 2000, "", "",
+        "", "")
+
+    $scope.tasks = ->
+      TaskFactory.list()
 
     $scope.logout = ->
       UserFactory.logout()

@@ -280,13 +280,7 @@ object User extends MongoDB {
    * @return
    */
   def updateCreditCard(cardId: String, number: String, validM: Int, validY: Int, name: String, cv2: Int, status: Int) = {
-    val selector = BSONDocument("creditCards" ->
-      BSONDocument(
-        "$elemMatch" -> BSONDocument(
-          "_id" -> BSONObjectID(cardId)
-        )
-      )
-    )
+    val selector = BSONDocument("creditCards" -> BSONDocument("$elemMatch" -> BSONDocument("_id" -> BSONObjectID(cardId))))
     val update = BSONDocument(
       "$set" -> BSONDocument(
         "creditCards.$.status" -> BSONInteger(status),
