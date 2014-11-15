@@ -21,10 +21,10 @@ define [
         )
         deferred.promise
 
-      registerNewUser: ->
+      registerNewUser: (email)->
         deferred = $q.defer()
         $http.post(jsRoutes.controllers.Registration.signup().url,
-          "email": "artem.ft2@gmail.com"
+          "email": email
           "password": "1234").success((data, status, headers) =>
           deferred.resolve(data)
         )
@@ -165,7 +165,7 @@ define [
         )
         deferred.promise
 
-      list : ->
+      list: ->
         deferred = $q.defer()
         $http.get(jsRoutes.controllers.TaskControl.list().url)
         .success((data, status, headers) =>
@@ -176,9 +176,51 @@ define [
           deferred.reject(data);
         )
         deferred.promise
-
     obj
   ]
 
+  class Comment
+    constructor: (text, system, docType, docId)->
+      @text = text
+      @system = system
+      @docType = docType
+      @docID = docId
+
+    asJson: ->
+      JSON.stringify(
+        "text": @text
+        "system": @system
+        "docType": @docType
+        "docId": @docID
+      )
+
+  class CommentService
+    constructor: ($q) ->
+      socket = new WebSocket(jsRoutes.controllers.CommentControl.socket().webSocketURL()+"?id=docID")
+      deferred = $q.defer()
+      socket.onopen = ->
+        deferred.resolve(socket)
+      socket.onclose = ->
+        deferred.reject(socket)
+      @socket = deferred.promise
+
+    onmessage: (callback) ->
+      @socket.then((s)->
+        s.onmessage = (event) ->
+          callback.call(@,event)
+      ,
+        (reason) ->
+          console.log(reason)
+      )
+
+    send: (comment) ->
+      @socket.then((s)->
+        s.send("this is comment #{new Date()}")
+      ,
+        (reason) ->
+          console.log(reason)
+      )
+
+  mod.service "CommentService", ['$q', CommentService]
 
   mod

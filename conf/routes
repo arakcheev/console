@@ -27,5 +27,7 @@ POST        /profile/creditCards/add               controllers.AccountControl.ad
 GET         /task                                  controllers.TaskControl.list
 POST        /task/new                              controllers.TaskControl.newTask
 
+GET         /comments                              controllers.CommentControl.socket
+
 GET         /*url                                  controllers.Application.index(url)
 
