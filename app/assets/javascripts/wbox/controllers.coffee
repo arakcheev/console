@@ -23,4 +23,13 @@ define ['./services'], (services)->
     "WboxFactory"
   ]
 
+  RepoController = ($scope,Repository) ->
+
+
+  RepoController.$inject = [
+    "$scope"
+    "Repository"
+  ]
+
   WboxCtrl: WboxCtrl
+  RepoCtrl: RepoController

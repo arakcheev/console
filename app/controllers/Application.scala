@@ -9,9 +9,6 @@ import scala.concurrent.Future
 object Application extends JsonSerializerController with Secured {
 
   def index(url: String) = Action{  implicit r =>
-    import com.bf.sdk.Main._
-
-    saveRepo
     Ok(views.html.index("Your new application is ready."))
   }
 

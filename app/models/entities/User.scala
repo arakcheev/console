@@ -1,9 +1,25 @@
+/*
+ * Copyright 2014. Arakcheev Artem (artem.arakcheev@phystech.edu)
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package models.entities
 
 import java.io.File
 
 import models.SecureGen
-import models.db.MongoDB
+import models.db.{MongoConnection, MongoDB}
 import models.services.aws.S3
 import play.api.Logger
 import play.api.libs.Crypto
@@ -16,14 +32,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 /**
- * Created by artem on 10.11.14.
+ * @author Artem Arakcheev
+ * @since 10.11.14
  */
+
 case class User(var id: Option[BSONObjectID], var uuid: Option[String], var email: Option[String],
-                var password: Option[String], var creditCards: Option[BSONArray], var account: Option[BSONDocument],
-                var avatar: Option[String], var status: Int, var subUser: Boolean, var users: Option[BSONArray]) {
+                var password: Option[String], var avatar: Option[String], var status: Option[Int], var revision: Option[Int],
+                var date: Option[Long], var info: Option[BSONDocument]) {
 
   def getAccountAsJson = {
-    account.map { doc =>
+    /*account.map { doc =>
       Json.obj(
         "phone_work" -> JsString(doc.getAs[String]("phone_work").getOrElse("")),
         "phone_home" -> JsString(doc.getAs[String]("phone_home").getOrElse("")),
@@ -35,51 +53,65 @@ case class User(var id: Option[BSONObjectID], var uuid: Option[String], var emai
         "company_name" -> JsString(doc.getAs[String]("company_name").getOrElse("")),
         "main_srceen_url" -> JsString(doc.getAs[String]("main_srceen_url").getOrElse(""))
       )
-    }.getOrElse(Json.obj())
+    }.getOrElse(Json.obj())*/
+    ???
   }
 
 
   def getCreditCardsAsJson = {
-    Json.toJson(creditCards.map { array =>
-      array.values.map { doc =>
-        val bsonDoc = doc.seeAsOpt[BSONDocument].getOrElse(BSONDocument.empty)
-        Json.obj(
-          "id" -> bsonDoc.getAs[BSONObjectID]("_id").map(_.stringify),
-          "status" -> bsonDoc.getAs[Int]("status"),
-          "number" -> bsonDoc.getAs[String]("number"),
-          "validM" -> bsonDoc.getAs[Int]("validM"),
-          "validY" -> bsonDoc.getAs[Int]("validY"),
-          "name" -> bsonDoc.getAs[String]("name")
-        )
-      }.toList
-    }.getOrElse(Nil))
+    /* Json.toJson(creditCards.map { array =>
+       array.values.map { doc =>
+         val bsonDoc = doc.seeAsOpt[BSONDocument].getOrElse(BSONDocument.empty)
+         Json.obj(
+           "id" -> bsonDoc.getAs[BSONObjectID]("_id").map(_.stringify),
+           "status" -> bsonDoc.getAs[Int]("status"),
+           "number" -> bsonDoc.getAs[String]("number"),
+           "validM" -> bsonDoc.getAs[Int]("validM"),
+           "validY" -> bsonDoc.getAs[Int]("validY"),
+           "name" -> bsonDoc.getAs[String]("name")
+         )
+       }.toList
+     }.getOrElse(Nil))*/
+    ???
   }
 
 }
 
-object User extends MongoDB {
+object User extends Entity {
 
   import reactivemongo.api.collections.default.BSONCollection
 
-  val collection = db.collection[BSONCollection]("user")
+  val collection = MongoConnection.db.collection[BSONCollection]("user")
 
   val COOKIE_EMAIL = "u_e"
 
   val COOKIE_AUTH = "u_a"
 
+  /** Create empty user */
+  def empty() = User(Some(BSONObjectID.generate), Some(SecureGen.nextSessionId()), None, None, None, None, None, None, None)
+
+  /** Gen new user by email and password */
+  def gen(email: String, password: String) = {
+    val user = empty()
+    user.email = Some(email)
+    user.password = Some(Crypto.encryptAES(password))
+    insert(user)(UserWriter)
+  }
+
+  /
+
   implicit object UserWriter extends BSONDocumentWriter[User] {
     def write(user: User): BSONDocument = {
       BSONDocument(
-        "_id" -> user.id.getOrElse(BSONObjectID.generate),
+        "_id" -> user.id,
         "uuid" -> user.uuid.getOrElse(""),
         "email" -> user.email.getOrElse(""),
         "password" -> user.password.getOrElse(""),
-        "creditCards" -> user.creditCards.getOrElse(BSONArray.empty),
-        "account" -> user.account.getOrElse(BSONDocument.empty),
-        "avatar" -> user.avatar.getOrElse(""),
-        "status" -> BSONInteger(user.status),
-        "subUser" -> user.subUser,
-        "users" -> user.users.getOrElse(BSONArray.empty)
+        "avatar" -> user.avatar,
+        "status" -> user.status,
+        "revision" -> user.revision,
+        "date" -> user.date.map(BSONDateTime.apply),
+        "info" -> user.info
       )
     }
   }
@@ -91,50 +123,43 @@ object User extends MongoDB {
         doc.getAs[String]("uuid"),
         doc.getAs[String]("email"),
         doc.getAs[String]("password"),
-        doc.getAs[BSONArray]("creditCards"),
-        doc.getAs[BSONDocument]("account"),
         doc.getAs[String]("avatar"),
-        doc.getAs[Int]("status").getOrElse(0),
-        doc.getAs[Boolean]("subUser").getOrElse(true),
-        doc.getAs[BSONArray]("users")
+        doc.getAs[Int]("status"),
+        doc.getAs[Int]("revision"),
+        doc.getAs[BSONDateTime]("date").map(_.value),
+        doc.getAs[BSONDocument]("info")
       )
     }
   }
 
-  def registerNewUser(email: String, password: String) = {
-    byEmail(email).flatMap {
+  /** Register new user by email and password */
+  def reg(email: String, password: String) = {
+    byEmail(Some(email)).flatMap {
       case Some(user) =>
-        Future.successful(("", Some("User already exists")))
+        Future.successful(None)
       case None =>
-        val uuid = SecureGen.nextSessionId()
-        //todo Crypto with shared key
-        collection.save(User(None, Some(uuid), Some(email), Some(Crypto.encryptAES(password)), None, None, None, 1, false, None)).map { le =>
-          if (le.inError) {
-            Logger.logger.error(s"Mongo error: ${le.message}")
-            (uuid, Some("Internal server error"))
-          } else {
-            (uuid, None)
-          }
-        }
+        gen(email, password)
     }
   }
 
-  def byEmail(email: String) = {
+  def byEmail(email: Option[String]) = {
     collection.find(BSONDocument(
       "email" -> email
     )).one[User]
   }
 
-  def byId(id: String) = {
+  /** Find user by ObjectId */
+  def byId(id: BSONObjectID) = {
     collection.find(BSONDocument(
-      "_id" -> BSONObjectID(id)
+      "_id" -> id
     )).one[User]
   }
 
-  def byUUID(uuid: String) = {
+  /** Find user by uuid with max revision */
+  def byUUID(uuid: Option[String]) = {
     collection.find(BSONDocument(
       "uuid" -> uuid
-    )).one[User]
+    )).sort(BSONDocument("revision" -> -1)).one[User]
   }
 
   /**
@@ -143,13 +168,8 @@ object User extends MongoDB {
    * @param password - uncripted password
    * @return Future[Boolean]
    */
-  private def auth(user: User, password: String) = {
-    //todo Crypto with shared key
-    if (user.password.filter(_ == Crypto.encryptAES(password)).isDefined) {
-      Some(user)
-    } else None
+  private def auth(user: User, password: Option[String]) = if (user.password.filter(_ == Crypto.encryptAES(password.get)).isDefined) Some(user) else None ////todo Crypto with shared key
 
-  }
 
   /**
    * Authenticate user by email and passwrod
@@ -157,7 +177,7 @@ object User extends MongoDB {
    * @param password user uncripted password
    * @return
    */
-  def authenticate(email: String, password: String) = {
+  def authenticate(email: Option[String], password: Option[String]) = {
     byEmail(email).map {
       case Some(user) => auth(user, password)
       case None => None
@@ -170,32 +190,18 @@ object User extends MongoDB {
    * @param password user uncripted password
    * @return
    */
-  def authenticate(request: RequestHeader, password: String) = {
-    request.cookies.get(COOKIE_EMAIL) match {
-      case Some(cookie) =>
-        byUUID(cookie.value).map {
-          case Some(user) => auth(user, password)
-          case None => None
-        }
-      case None => Future.successful(None)
+  def authenticate(request: RequestHeader, email: Option[String], password: Option[String]) = {
+    byUUID(request.cookies.get(COOKIE_EMAIL).map(_.value)).map {
+      case Some(user) => auth(user, password)
+      case None => None
     }
   }
 
-  /**
-   * Get user from request
-   * @param request request headers
-   * @return
-   */
-  def fromRequest(request: RequestHeader) = {
-    request.cookies.get(COOKIE_AUTH) match {
-      case Some(cookie) =>
-        //todo user status
-        byUUID(cookie.value) //.map(_.filter(_.status > 0))
-      case None =>
-        Future.successful(None)
-    }
-  }
+  /** Gen user from request */
+  def fromRequest(request: RequestHeader) = byUUID(request.cookies.get(COOKIE_AUTH).map(_.value))
 
+
+  //todo????
   def setAccountValue(id: String, name: String, value: String) = {
     val selector = BSONDocument("_id" -> BSONObjectID(id))
     name match {

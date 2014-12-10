@@ -14,27 +14,29 @@
  *  limitations under the License.
  */
 
-package models.db
+package models.entities
 
-import reactivemongo.api.MongoDriver
-import reactivemongo.api.collections.default.BSONCollection
+import models.db.MongoDB
+import reactivemongo.bson.{BSONDocumentWriter, BSONDocument}
 
 /**
  * @author Artem Arakcheev
- * @since 10.11.14
+ * @since 10.12.14
  */
 
-object MongoConnection {
-  // gets an instance of the driver
-  // (creates an actor system)
-  val driver = new MongoDriver
-  val connection = driver.connection(List("localhost"))
+trait Entity extends MongoDB {
 
-  // Gets a reference to the database "plugin"
-  val db = connection("bf")
-}
 
-trait MongoDB {
 
-  val collection: BSONCollection
+  def insert[E](doc: E)(implicit writer: BSONDocumentWriter[E]) = {
+    val bson = writer.write(doc)
+    collection.insert[BSONDocument](bson).map { wr =>
+      if (wr.inError) {
+        None
+      } else {
+        Some(doc)
+      }
+    }
+  }
+
 }

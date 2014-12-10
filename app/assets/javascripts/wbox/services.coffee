@@ -1,5 +1,5 @@
 ###*
-Console services.
+Wbox services.
 ###
 define [
   "angular"
@@ -23,4 +23,48 @@ define [
 
     obj
   ]
+
+#todo
+  mod.factory "Repository", ['$http','$q', ($http,$q)->
+    repo =
+      list: ->
+
+      gen: (name) ->
+
+      del: (id) ->
+
+      update: (id,name) ->
+
+    repo
+  ]
+
+#todo
+  mod.factory "Mask", ['$http','$q', ($http,$q)->
+    mask =
+      list: (repo)->
+
+      gen: (name,title,params) ->
+
+      del: (id) ->
+
+      update: (id,name,title,params) ->
+
+    mask
+  ]
+
+  mod.factory "Doc", ['$http','$q', ($http,$q)->
+    doc =
+      list: (repo)->
+
+      gen: (name,title,params) ->
+
+      del: (id) ->
+
+      update: (id,name,title,params) ->
+
+    doc
+  ]
+
+
+
   mod
