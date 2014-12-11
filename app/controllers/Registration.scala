@@ -49,7 +49,7 @@ object Registration extends JsonSerializerController {
       case d: JsSuccess[Future[Option[User]]] =>
         d.get.map {
           case Some(user) =>
-            ok(Json toJson user).withCookies(Cookie(User.COOKIE_AUTH, user.uuid.get), Cookie(User.COOKIE_AUTH, user.uuid.get))
+            ok(Json toJson user).withCookies(Cookie(User.COOKIE_AUTH, user.uuid.get), Cookie(User.COOKIE_EMAIL, user.uuid.get))
           case None =>
             bad("Error register user")
         }
@@ -73,7 +73,7 @@ object Registration extends JsonSerializerController {
       case d: JsSuccess[Future[Option[User]]] =>
         d.get.map {
           case Some(user) =>
-            ok(Json toJson user).withCookies(Cookie(User.COOKIE_AUTH, user.uuid.get), Cookie(User.COOKIE_AUTH, user.uuid.get))
+            ok(Json toJson user).withCookies(Cookie(User.COOKIE_AUTH, user.uuid.get), Cookie(User.COOKIE_EMAIL, user.uuid.get))
           case None =>
             bad("Error register user")
         }

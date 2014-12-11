@@ -29,7 +29,7 @@ import reactivemongo.bson._
 import reactivemongo.core.commands.LastError
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Promise, Future}
 
 /**
  * @author Artem Arakcheev
