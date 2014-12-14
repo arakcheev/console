@@ -1,6 +1,6 @@
 package models.entities
 
-import models.db.MongoDB
+import models.db.{MongoConnection, MongoDB}
 import reactivemongo.bson._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -17,7 +17,7 @@ object Task extends MongoDB {
 
   import reactivemongo.api.collections.default.BSONCollection
 
-  val collection = db.collection[BSONCollection]("task")
+  val collection = MongoConnection.db.collection[BSONCollection]("task")
 
   implicit object TaskWriter extends BSONDocumentWriter[Task] {
     def write(task: Task): BSONDocument = {

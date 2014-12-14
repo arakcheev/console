@@ -18,7 +18,7 @@ package models.db
 
 import reactivemongo.api.MongoDriver
 import reactivemongo.api.collections.default.BSONCollection
-
+import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * @author Artem Arakcheev
  * @since 10.11.14

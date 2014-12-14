@@ -19,6 +19,6 @@ define [
         controller: controllers.MainCtrl
       .when "/",
         redirectTo: '/console/'
-      .otherwise templateUrl: "/assets/javascripts/console/templates/nFound.html"
+      .otherwise templateUrl: "/assets/templates/nFound.html"
   ]
   routes

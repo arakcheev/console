@@ -18,7 +18,7 @@ package models.entities
 
 import models.db.MongoDB
 import reactivemongo.bson.{BSONDocumentWriter, BSONDocument}
-
+import scala.concurrent.ExecutionContext.Implicits.global
 /**
  * @author Artem Arakcheev
  * @since 10.12.14
@@ -26,7 +26,7 @@ import reactivemongo.bson.{BSONDocumentWriter, BSONDocument}
 
 trait Entity extends MongoDB {
 
-
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   def insert[E](doc: E)(implicit writer: BSONDocumentWriter[E]) = {
     val bson = writer.write(doc)

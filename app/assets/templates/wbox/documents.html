@@ -1,0 +1,129 @@
+<!--
+  ~ Copyright 2014. Arakcheev Artem (artem.arakcheev@phystech.edu)
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~  http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+<div class="page" ng-controller="WboxDocsCtrl">
+    <div class="row">
+        <div class="col-md-9">
+            <section class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-th"></span>
+                    Documents
+                </div>
+                <div class="panel-body">
+                    <div class="section-header">
+                        <h4>All Documents</h4>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+
+                            <div class="document-heading">
+                                <span>Document name</span>
+
+                                <div class="pull-right">
+                                    <div class="btn-group" dropdown="">
+                                        <button type="button"
+                                                class="btn btn-default"
+                                                dropdown-toggle=""
+                                                ng-disabled="disabled"
+                                                aria-haspopup="true"
+                                                aria-expanded="false">
+                                            <i class="ti-eye"></i>
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a href="javascript:;">Publish</a></li>
+                                            <li><a href="javascript:;">Unpublish</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="document-tags">
+                                <span class="glyphicon glyphicon-tags"></span>
+                                <span>Tag1</span>
+                                <span>Tag2</span>
+                            </div>
+
+                            <div class="document-footer">
+                                <div class="pull-right">
+                                    id: 8JUFG2KN2F52Q9I4UAD33I6TIT
+                                </div>
+                                <div>artem.ft@gmail.com</div>
+                                <div>26.10.14</div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            Doc2
+                        </div>
+                    </div>
+
+                    <div class="divider divider-lg"></div>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-md-3">
+            <section class="panel panel-default">
+                <div class="panel-body">
+
+                    <div class="btn-group dropdown" dropdown="" is-open="status.isopen11">
+                        <button type="button" class="btn btn-default" ng-click="edit()">New Document</button>
+                        <button type="button"
+                                class="btn btn-default"
+                                dropdown-toggle=""
+                                ng-disabled="disabled"
+                                aria-haspopup="true"
+                                aria-expanded="false">
+                            <span class="ti-angle-down"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="javascript:;">Mask 1</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="divider divider-lg"></div>
+
+                    <form class="form-horizontal" role="form">
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <input type="text" class="form-control" placeholder="Search by name">
+                            </div>
+                        </div>
+                    </form>
+
+                    <accordion close-others="false" class="ui-accordion" ng-controller="AccordionCtrl">
+                        <accordion-group is-open="status.open">
+                            <accordion-heading>
+                                Mask <i class="pull-right glyphicon"
+                                        ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
+                            </accordion-heading>
+                            <div ng-controller="TagsDemoCtrl">
+                                <tags-input ng-model="tags" class="ui-tags-input" placeholder="Add mask"></tags-input>
+                            </div>
+                        </accordion-group>
+                    </accordion>
+
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+</div>

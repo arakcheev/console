@@ -1,6 +1,7 @@
 package models.entities
 
 import akka.actor.{Actor, Props, ActorRef}
+import models.db.MongoConnection
 import models.entities.Task._
 import play.api.Logger
 
@@ -20,7 +21,7 @@ object CommentActor {
 
   import reactivemongo.api.collections.default.BSONCollection
 
-  val collection = db.collection[BSONCollection]("comment")
+  val collection = MongoConnection.db.collection[BSONCollection]("comment")
 
   def props(out: ActorRef)(implicit user: User) = Props(new CommentActor(out, user))
 

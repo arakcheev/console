@@ -1,60 +1,50 @@
-@(message: String)<!DOCTYPE html>
+@(message: String) <!DOCTYPE html>
 
 <html>
     <head>
         <title></title>
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
-        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("/lib/bootstrap/css/bootstrap.css")" />
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("lib/bootstrap/css/bootstrap.css")" />
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+        <style type="text/css">
+        @@ charset "UTF-8" ;[ ng\:cloak ], [ ng-cloak ], [ data-ng-cloak ], [ x-ng-cloak ],.ng-cloak,.x-ng-cloak,.ng-hide { display : none !important ; } ng\:form { display : block ; }.ng-animate-block-transitions { transition : 0 s all !important ; -webkit-transition : 0 s all !important ; }.ng-hide-add-active,.ng-hide-remove { display : block !important ; }
+        </style>
+        <meta charset="utf-8">
+        <title>SingUp | Console</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 
-        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/test.css")">
+        <style>
+        .file-input-wrapper { overflow : hidden ; position : relative ; cursor : pointer ; z-index : 1 ; }.file-input-wrapper input[ type = file ],.file-input-wrapper input[ type = file ] : focus,.file-input-wrapper input[ type = file ] : hover { position : absolute ; top : 0 ; left : 0 ; cursor : pointer ; opacity : 0 ; filter : alpha ( opacity = 0 ) ; z-index : 99 ; outline : 0 ; }.file-input-name { margin-left : 8 px ; }
+        </style>
+        <link href="http://assets.assets.fonts.googleapis.com/css?family=Lato:100,300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+            <!-- Needs images, font... therefore can not be part of main.css -->
+        <link rel="stylesheet" href="/assets/stylesheets/font.css">
+        @*<link rel="stylesheet" href="bower_components/weather-icons/css/weather-icons.min.css">*@
+            <!-- end Needs images -->
 
-        <script data-main="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript" src="//cdn.jsdelivr.net/requirejs/2.1.14/require.js"></script>
+        <style type="text/css">
+        .jqstooltip { position : absolute ; left : 0 px ; top : 0 px ; visibility : hidden ; background : rgb ( 0, 0, 0 ) transparent ; background-color : rgba ( 0, 0, 0, 0.6 ) ; filter : progid : DXImageTransform.Microsoft.gradient ( startColorstr = #99000000, endColorstr = #99000000 ) ; -ms-filter : "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)" ; color : white ; font : 10 px arial, san serif ; text-align : left ; white-space : nowrap ; padding : 5 px ; border : 1 px solid white ; z-index : 10000 ; }.jqsfield { color : white ; font : 10 px arial, san serif ; text-align : left ; }
+        </style>
+        @*<script data-main="@routes.Assets.versioned("javascripts/main.js")" type="text/javascript" src="//cdn.jsdelivr.net/requirejs/2.1.14/require.js"></script>*@
+        <script src='/assets/javascripts/vendor/vendor.js'></script>
+        <script src='/assets/javascripts/vendor/angular-ui.js'></script>
+        <script src='@routes.Assets.versioned("javascripts/vendor/angular-cookie.js")'></script>
+        <script src='/assets/javascripts/vendor/ngStorage.js'></script>
+        <script src='@routes.Assets.versioned("javascripts/vendor/underscore.js")'></script>
+        <script src='/assets/javascripts/mainapp.js'></script>
+        @*<script type="text/javascript" src="/assets/javascripts/vendor/vendor.js"></script>*@
     </head>
-    <body>
-        <div class='example'>
-            <table cellspacing='0'>
-                <thead>
-                    <tr class='odd'>
-                        <th>Title</th>
-                        <th>One</th>
-                        <th>Two</th>
-                        <th>Three</th>
-                        <th>Four</th>
-                        <th>Row Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class='even'>
-                        <th>Single</th>
-                        <td class='numeric'>1.0</td>
-                        <td class='numeric'>2.0</td>
-                        <td class='numeric'>3.0</td>
-                        <td class='numeric'>4.0</td>
-                        <td class='numeric'>10.0</td>
-                    </tr>
-                    <tr class='odd'>
-                        <th>Tens</th>
-                        <td class='numeric'>10.0</td>
-                        <td class='numeric'>20.0</td>
-                        <td class='numeric'>30.0</td>
-                        <td class='numeric'>40.0</td>
-                        <td class='numeric'>100.0</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr class='even'>
-                        <th>Total</th>
-                        <td class='numeric'>11.0</td>
-                        <td class='numeric'>22.0</td>
-                        <td class='numeric'>33.0</td>
-                        <td class='numeric'>44.0</td>
-                        <td class='numeric'>110.0</td>
-                    </tr>
-                </tfoot>
-            </table>
+    <body ng-app="app" id="app" class="app" custom-page off-canvas-nav ng-controller="AppCtrl" ng-class=" {'layout-boxed': admin.layout === 'boxed' } ">
+
+        <section ng-include="'/assets/templates/header.html'" id="header" class="header-container" ng-class=" {'header-fixed': admin.fixedHeader} " ng-controller="HeaderCtrl"></section>
+
+        <div class="main-container">
+            <aside ng-include="systemAside" id="nav-container" class="nav-container" ng-class=" {'nav-fixed': admin.fixedSidebar, 'nav-horizontal': admin.menu === 'horizontal', 'nav-vertical': admin.menu === 'vertical'}"></aside>
+
+            <div id="content" class="content-container">
+                <section ng-view class="view-container {{admin.pageTransition.class}}"></section>
+            </div>
         </div>
-        <div ng-view=""></div>
-        <a ng-href="/wbox">wbox</a>
+
     </body>
 </html>

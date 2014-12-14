@@ -29,6 +29,7 @@ libraryDependencies ++= Seq(
   "org.webjars" % "bootstrap" % "3.1.1-2" ,
   "org.webjars" % "angularjs" % "1.2.18" ,
   "org.webjars" %% "webjars-play" % "2.3.0-2",
+  "org.webjars" % "angular-ui-bootstrap" % "0.12.0",
   "org.reactivemongo" %% "reactivemongo" % "0.10.5.0.akka23",
   "com.amazonaws" % "aws-java-sdk" % "1.9.4"
 )
@@ -61,6 +62,11 @@ RjsKeys.paths += ("underscorejs" -> ("/assets/javascripts/../lib/underscorejs/un
 RjsKeys.paths += ("angular-route" -> ("/assets/javascripts/../lib/angularjs/angular-route.js" -> "empty:"))
 
 RjsKeys.paths += ("angular-cookies" -> ("/assets/javascripts/../lib/angularjs/angular-cookies.js" -> "empty:"))
+
+RjsKeys.paths += ("angular-ui" -> ("/assets/javascripts/vendor/angular-ui.js" -> "empty:"))
+
+RjsKeys.paths += ("mainapp" -> ("/assets/javascripts/mainapp.js" -> "empty:"))
+
 
 
 //RjsKeys.mainModule := "main"

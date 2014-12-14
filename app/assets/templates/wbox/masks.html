@@ -1,0 +1,165 @@
+<!--
+  ~ Copyright 2014. Arakcheev Artem (artem.arakcheev@phystech.edu)
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~  http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+<div class="page" ng-controller="WboxMaskCtrl">
+
+    <div class="<!--col-md-9-->">
+        <section class="panel panel-default">
+
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-th"></span>
+                Masks
+                <div class="pull-right">
+                    <a class="" ng-click="toggleForm()">
+                        <i ng-class="{'ti-minus':isFormOpen,'ti-plus': !isFormOpen}"></i>
+                    </a>
+                </div>
+                {{}}
+            </div>
+
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2">
+                        <div ng-if="!isFormOpen" class="repositories">
+                            <h3>List of masks</h3>
+
+                            <div class="panel panel-default" ng-repeat="msk in masks">
+                                <div class="panel-heading">
+                                    <i ng-class="{'ti-check': selected === msk.uuid}"></i>
+                                    <span ng-bind="msk.name"></span>
+                                    <i class="ti-trash pointer"
+                                       tooltip-placement="bottom"
+                                       tooltip="Delete mask"
+                                       tooltip-append-to-body="true"
+                                       ng-click="del(msk)"></i>
+                                    <i class="ti-pencil-alt pointer"
+                                       tooltip-placement="bottom"
+                                       tooltip="Edit mask"
+                                       tooltip-append-to-body="true"
+                                       ng-click="edit(msk)"></i>
+
+                                    <div class="pull-right">
+                                    <span tooltip-placement="bottom"
+                                          tooltip="Repo id for QueryApi"
+                                          tooltip-append-to-body="true" ng-bind="'id: '+mask.uuid"></span>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    {{mask.title}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-if="isFormOpen">
+                    <div class="row">
+                        <form action="" role="form" class="form-horizontal">
+                            <div class="col-md-8 col-md-offset-1">
+
+                                <h3 ng-bind="newMsk.uuid === undefined ? 'Create new mask':'Update mask'"></h3>
+                                <input type="hidden" ng-model="newMsk.uuid">
+
+                                <div class="form-group">
+                                    <label for="inputName" class="col-sm-2 control-label">Name</label>
+
+                                    <div class="col-sm-10">
+                                        <input type="text" ng-model="newMsk.name" class="form-control" id="inputName"
+                                               placeholder="Name">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputDesc" class="col-sm-2 control-label">Title</label>
+
+                                    <div class="col-sm-10">
+                                        <input type="text" ng-model="newMsk.title" class="form-control" id="inputDesc"
+                                               placeholder="Title">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </form>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-8 col-md-offset-1">
+                            <h3>Fields</h3>
+
+                            <form class="form-inline" role="form">
+                                <div class="field" ng-repeat="field in newMsk.fields">
+                                    <div class="form-group">
+                                        <label class="sr-only" for="exampleInputEmail2">Field name</label>
+                                        <input type="text" ng-model="field.name" class="form-control"
+                                               id="exampleInputEmail2"
+                                               placeholder="Field name">
+                                    </div>
+                                    <div class="form-group">
+                                       <span class="ui-select">
+                                            <select ng-model="field.type">
+                                                <option value="Text">Text</option>
+                                                <option value="String">String</option>
+                                                <option value="Number">Number</option>
+                                            </select>
+                                        </span>
+                                    </div>
+                                    <div class="form-group" ng-if="$index !== newMsk.fields.length-1">
+                                        <i class="ti-minus" ng-click="popField(field)"></i>
+                                    </div>
+                                    <div class="form-group" ng-if="$index === newMsk.fields.length-1">
+                                        <i class="ti-plus" ng-click="addField()"></i>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3 pull-right">
+                            <div class="form-group">
+                                <div class="">
+                                    <button type="submit" ng-click="gen()" class="btn btn-success btn-w-md"
+                                            ng-bind="newMsk.uuid === undefined ? 'Create':'Update'"></button>
+                                    <button ng-click="toggleForm()" class="btn btn-warning btn-w-md">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+        </section>
+    </div>
+
+    <!--    <aside class="col-md-3">
+            <ul class="nav" id="nav-container">
+                <li class="active">
+                    <a>
+                        <i class="ti-folder"></i>
+                        <span data-i18n="Create new Mask"></span>
+                    </a>
+                </li>
+            </ul>
+        </aside>-->
+</div>
+

@@ -21,12 +21,23 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
 import play.api.mvc.{Cookie, Action, DiscardingCookie}
+import reactivemongo.bson.{BSONDocument, BSONObjectID}
 
 
 /**
  *
  */
 object Registration extends JsonSerializerController {
+
+  implicit val bsonIdWrites = new Writes[reactivemongo.bson.BSONObjectID] {
+    def writes(bson: BSONObjectID): JsValue = JsString(bson.stringify)
+  }
+
+  implicit val bsonDocWriter = new Writes[reactivemongo.bson.BSONDocument] {
+    def writes(bson: BSONDocument): JsValue = JsString(bson.toString())
+  }
+
+  implicit val userWriter = Json.writes[User]
 
   /**
    * Destroy all cookies
@@ -49,7 +60,7 @@ object Registration extends JsonSerializerController {
       case d: JsSuccess[Future[Option[User]]] =>
         d.get.map {
           case Some(user) =>
-            ok(Json toJson user).withCookies(Cookie(User.COOKIE_AUTH, user.uuid.get), Cookie(User.COOKIE_EMAIL, user.uuid.get))
+            ok(Json toJson user).withCookies(Cookie(User.COOKIE_AUTH, user.uuid.get,httpOnly = false), Cookie(User.COOKIE_EMAIL, user.uuid.get,httpOnly = false))
           case None =>
             bad("Error register user")
         }
@@ -73,12 +84,12 @@ object Registration extends JsonSerializerController {
       case d: JsSuccess[Future[Option[User]]] =>
         d.get.map {
           case Some(user) =>
-            ok(Json toJson user).withCookies(Cookie(User.COOKIE_AUTH, user.uuid.get), Cookie(User.COOKIE_EMAIL, user.uuid.get))
+            ok(Json toJson user).withCookies(Cookie(User.COOKIE_AUTH, user.uuid.get,httpOnly = false), Cookie(User.COOKIE_EMAIL, user.uuid.get,httpOnly = false))
           case None =>
-            bad("Error register user")
+            bad("Invalid login/password")
         }
       case JsError(e) =>
-        futureBad("Error register user")
+        futureBad("Invalid login/password")
     }
   }
 

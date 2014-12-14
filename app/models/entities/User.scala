@@ -98,7 +98,6 @@ object User extends Entity {
     insert(user)(UserWriter)
   }
 
-  /
 
   implicit object UserWriter extends BSONDocumentWriter[User] {
     def write(user: User): BSONDocument = {

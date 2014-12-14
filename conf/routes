@@ -29,5 +29,8 @@ POST        /task/new                              controllers.TaskControl.newTa
 
 GET         /comments                              controllers.CommentControl.socket
 
-GET         /*url                                  controllers.Application.index(url)
+GET         /:system/*url                          controllers.Application.proxy(system: String,url: String)
 
+POST        /:system/*url                          controllers.Application.proxy(system: String,url: String)
+
+GET         /*url                                  controllers.Application.index(url)

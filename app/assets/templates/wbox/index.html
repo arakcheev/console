@@ -1,0 +1,108 @@
+<!--
+  ~ Copyright 2014. Arakcheev Artem (artem.arakcheev@phystech.edu)
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~  http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<div class="page page-dashboard" sign="">
+
+    <section class="panel panel-default" ng-controller="WboxRepoCtrl">
+        <div class="panel-heading">
+            <span class="glyphicon glyphicon-th"></span>
+            Repositories
+            <div class="pull-right">
+                <a class="" ng-click="toggleForm()">
+                    <i ng-class="{'ti-minus':isFormOpen,'ti-plus': !isFormOpen}"></i>
+                </a>
+            </div>
+            {{}}
+        </div>
+
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-8 col-md-offset-2">
+                    <div ng-if="!isFormOpen" class="repositories">
+                        <h3>List of available repositories</h3>
+
+                        <div class="panel panel-default" ng-repeat="repo in repositories">
+                            <div class="panel-heading">
+                                <i ng-class="{'ti-check': selected === repo.uuid}"></i>
+                                <span ng-bind="repo.name"
+                                        ng-click="select(repo)"
+                                        class="pointer"
+                                        tooltip-placement="bottom"
+                                        tooltip="{{selected === repo.uuid? 'Repository is selected':'Select repository' }}"
+                                        tooltip-append-to-body="true"></span>
+                                <i class="ti-trash pointer"
+                                   tooltip-placement="bottom"
+                                   tooltip="Delete repo"
+                                   tooltip-append-to-body="true"
+                                   ng-click="del(repo)"></i>
+                                <i class="ti-pencil-alt pointer"
+                                   tooltip-placement="bottom"
+                                   tooltip="Edit repo"
+                                   tooltip-append-to-body="true"
+                                   ng-click="edit(repo)"></i>
+
+                                <div class="pull-right">
+                                    <span tooltip-placement="bottom"
+                                          tooltip="Repo id for QueryApi"
+                                          tooltip-append-to-body="true" ng-bind="'id: '+repo.uuid"></span>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                {{repo.description}}
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                    <form class="form-horizontal ng-pristine ng-valid" role="form" ng-if="isFormOpen">
+                        <h3 ng-bind="newRepo.uuid === undefined ? 'Create new repository':'Update repository'"></h3>
+                        <input type="hidden" ng-model="newRepo.uuid">
+
+                        <div class="form-group">
+                            <label for="inputName" class="col-sm-2 control-label">Name</label>
+
+                            <div class="col-sm-10">
+                                <input type="text" ng-model="newRepo.name" class="form-control" id="inputName"
+                                       placeholder="Name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDesc" class="col-sm-2 control-label">Description</label>
+
+                            <div class="col-sm-10">
+                                <input type="text" ng-model="newRepo.description" class="form-control" id="inputDesc"
+                                       placeholder="Description">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" ng-click="gen()" class="btn btn-success btn-w-md"
+                                        ng-bind="newRepo.uuid === undefined ? 'Create':'Update'"></button>
+                                <button ng-click="toggleForm()" class="btn btn-warning btn-w-md">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+
+</div>
