@@ -13144,3 +13144,12 @@ body {
     background: #ffffff;
     font-size: 12px;
 }
+
+.editor-fixed{
+    position: fixed;
+    top: 60px;
+    width: 57.2%;
+    background: #EAEAEA;
+    z-index: 1000;
+    padding: 10px;
+}

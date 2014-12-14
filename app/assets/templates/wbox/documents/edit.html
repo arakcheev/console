@@ -14,16 +14,101 @@
   ~  See the License for the specific language governing permissions and
   ~  limitations under the License.
   -->
-<div class="page" ng-controller="WboxDocEdit">
 
-  <section class="panel panel-default">
-    <div class="panel-heading">
-      <strong><span class="glyphicon glyphicon-th"></span>
-        Document edit</strong>
+<div class="page" ng-controller="WboxDocEdit as parent">
+    <div class="row">
+        <div class="col-md-9">
+            <section class="panel panel-default">
+                <form role="form">
+
+                    <div class="panel-heading">
+                        <strong><span class="glyphicon glyphicon-th"></span>
+                            Document edit</strong>
+                    </div>
+
+                    <div class="panel-body">
+                        <div class="pull-right document-ti-font">
+                            <span class="ti-trash"></span>
+                            <span class="ti-pencil"></span>
+                        </div>
+                        <div class="section-header">
+                            <button class="btn btn-default" ng-click="back()"><< Back</button>
+                            <button class="btn btn-default">
+                                <span class="glyphicon glyphicon-floppy-disk"></span>
+                                Save new revision
+                            </button>
+                        </div>
+
+                        <div>
+                            <div class="form-group">
+                                <label for="label-name">Document name</label>
+                                <input type="text" class="form-control" id="label-name"
+                                       value="This is the name of document">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel-body">
+                        <span class="glyphicon glyphicon-tags"></span>
+                        Tags
+                        <tags-input ng-model="tags" class="ui-tags-input"></tags-input>
+                    </div>
+
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <p class="input-group">
+                                <label for="label-pd">Publish date</label>
+                                <input type="text"
+                                       class="form-control"
+                                       datepicker-popup="{{format}}"
+                                       ng-model="dt"
+                                       is-open="opened"
+                                       datepicker-options="dateOptions"
+                                       date-disabled="disabled(date, mode)"
+                                       ng-required="true"
+                                       close-text="Close"
+                                       id="label-pd"/>
+                              <span class="input-group-btn">
+                                <button type="button" class="btn btn-default" ng-click="open($event)">
+                                    <i class="glyphicon glyphicon-calendar"></i>
+                                </button>
+                              </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label for="label-upd">Unpublish date</label>
+                            <input type="text" class="form-control" id="label-upd"
+                                    >
+                        </div>
+                    </div>
+
+                    <div class="panel-body">
+                        <div class="document-param panel-default">
+                            <div class="panel-heading">Param Name</div>
+                            <div class="panel-body">Lorem ipsum dolor</div>
+                        </div>
+                        <div class="document-param panel-default">
+                            <div class="panel-heading">Param Name2</div>
+                            <div class="panel-body">
+                                <div text-angular ng-model="tags"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </section>
+        </div>
+
+        <div class="col-md-3">
+            <section class="panel panel-default">
+                <div class="panel-body">
+                    this is side bar
+                </div>
+            </section>
+        </div>
     </div>
-    <div class="panel-body">
-      <p>Edit</p>
-    </div>
-  </section>
 
 </div>
