@@ -1723,9 +1723,25 @@
 }).call(this);
 
 (function () {
-    angular.module('app.wbox', ['app.wbox.services', 'app.wbox.controllers', 'textAngular'])
+    angular.module('app.wbox', ['app.wbox.services', 'app.wbox.controllers', 'textAngular', 'app.wbox.directives'])
 }).call(this);
 
+(function () {
+    "use strict";
+    angular.module('app.wbox.directives', []).directive("fixedScroll", function ($window) {
+        return function (scope, element, attrs) {
+            angular.element($window).bind("scroll", function () {
+             //todo: Visability element after scroll window
+                //if (this.pageYOffset >= 100) {
+                //    angular.element(angular.element(element).children()[0]).addClass(attrs['fixedScroll'])
+                //} else {
+                //    angular.element(angular.element(element).children()[0]).removeClass(attrs['fixedScroll'])
+                //}
+                scope.$apply();
+            });
+        };
+    });
+}).call(this);
 
 (function () {
     "use strict";

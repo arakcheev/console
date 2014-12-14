@@ -48,55 +48,84 @@
                         </div>
                     </div>
 
-                    <div class="panel-body">
-                        <span class="glyphicon glyphicon-tags"></span>
-                        Tags
-                        <tags-input ng-model="tags" class="ui-tags-input"></tags-input>
-                    </div>
-
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <p class="input-group">
-                                <label for="label-pd">Publish date</label>
-                                <input type="text"
-                                       class="form-control"
-                                       datepicker-popup="{{format}}"
-                                       ng-model="dt"
-                                       is-open="opened"
-                                       datepicker-options="dateOptions"
-                                       date-disabled="disabled(date, mode)"
-                                       ng-required="true"
-                                       close-text="Close"
-                                       id="label-pd"/>
-                              <span class="input-group-btn">
-                                <button type="button" class="btn btn-default" ng-click="open($event)">
-                                    <i class="glyphicon glyphicon-calendar"></i>
-                                </button>
-                              </span>
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="panel-body">
-                        <div class="form-group">
-                            <label for="label-upd">Unpublish date</label>
-                            <input type="text" class="form-control" id="label-upd"
-                                    >
-                        </div>
-                    </div>
-
-                    <div class="panel-body">
-                        <div class="document-param panel-default">
-                            <div class="panel-heading">Param Name</div>
-                            <div class="panel-body">Lorem ipsum dolor</div>
-                        </div>
-                        <div class="document-param panel-default">
-                            <div class="panel-heading">Param Name2</div>
+                    <tabset>
+                        <tab heading="Main params">
                             <div class="panel-body">
-                                <div text-angular ng-model="tags"></div>
+                                <span class="glyphicon glyphicon-tags"></span>
+                                Tags
+                                <tags-input ng-model="tags" class="ui-tags-input"></tags-input>
                             </div>
-                        </div>
-                    </div>
+
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="label-name">Publish date</label>
+
+                                        <p class="input-group">
+                                            <input type="text"
+                                                   class="form-control"
+                                                   datepicker-popup="{{format}}"
+                                                   ng-model="pd"
+                                                   is-open="opened"
+                                                   datepicker-options="dateOptions"
+                                                   date-disabled="disabled(date, mode)"
+                                                   ng-required="true"
+                                                   close-text="Close"/>
+                                      <span class="input-group-btn">
+                                        <button type="button"
+                                                class="btn btn-default"
+                                                ng-click="open($event)">
+                                            <i class="glyphicon glyphicon-calendar"></i>
+                                        </button>
+                                      </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="label-name">Unpublish date</label>
+
+                                        <p class="input-group">
+                                            <input type="text"
+                                                   class="form-control"
+                                                   datepicker-popup="{{format}}"
+                                                   ng-model="upd"
+                                                   is-open="opened"
+                                                   datepicker-options="dateOptions"
+                                                   date-disabled="disabled(date, mode)"
+                                                   ng-required="true"
+                                                   close-text="Close"/>
+                                      <span class="input-group-btn">
+                                        <button type="button"
+                                                class="btn btn-default"
+                                                ng-click="open($event)">
+                                            <i class="glyphicon glyphicon-calendar"></i>
+                                        </button>
+                                      </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </tab>
+                        <tab heading="Mask params">
+                            <div class="panel-body">
+                                <div class="document-param panel-default">
+                                    <div class="panel-heading">Param Name</div>
+                                    <div class="panel-body">Lorem ipsum dolor</div>
+                                </div>
+                                <div class="document-param panel-default">
+                                    <div class="panel-heading">Param Name2</div>
+                                    <div class="panel-body">
+                                        <div text-angular ng-model="tags" fixed-scroll="editor-fixed"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </tab>
+                    </tabset>
+
 
                 </form>
             </section>
