@@ -13145,7 +13145,7 @@ body {
     font-size: 12px;
 }
 
-.editor-fixed{
+.focussed.editor-fixed{
     position: fixed;
     top: 60px;
     width: 57.2%;

@@ -1731,12 +1731,24 @@
     angular.module('app.wbox.directives', []).directive("fixedScroll", function ($window) {
         return function (scope, element, attrs) {
             angular.element($window).bind("scroll", function () {
-             //todo: Visability element after scroll window
-                //if (this.pageYOffset >= 100) {
-                //    angular.element(angular.element(element).children()[0]).addClass(attrs['fixedScroll'])
-                //} else {
-                //    angular.element(angular.element(element).children()[0]).removeClass(attrs['fixedScroll'])
-                //}
+                var windowScrollTol = this.pageYOffset,
+                    clazz = attrs['fixedScroll'],
+                    $element = jQuery(element).children(".ta-toolbar"),
+                    elementOffset,
+                    elementHeight = $element.height();
+                if ($element.hasClass(clazz)) {
+                    elementOffset = $element.data("top")
+                } else {
+                    elementOffset = $element.offset().top;
+                }
+                if (windowScrollTol > elementOffset - elementHeight) {
+                    if (!$element.hasClass(clazz)) {
+                        $element.data("top", elementOffset)
+                    }
+                    $element.addClass(clazz)
+                } else {
+                    $element.removeClass(clazz)
+                }
                 scope.$apply();
             });
         };
