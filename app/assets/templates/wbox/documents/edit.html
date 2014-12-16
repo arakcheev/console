@@ -26,13 +26,13 @@
                     </div>
 
                     <div class="panel-body">
-                        <div class="pull-right document-ti-font">
+                        <div class="pull-right document-ti-font" ng-show="isEdit">
                             <span class="ti-trash"></span>
                             <span class="ti-pencil"></span>
                         </div>
                         <div class="section-header">
                             <button class="btn btn-default" ng-click="back()"><< Back</button>
-                            <button class="btn btn-default">
+                            <button class="btn btn-default" ng-click="gen()">
                                 <span class="glyphicon glyphicon-floppy-disk"></span>
                                 Save new revision
                             </button>
@@ -41,8 +41,11 @@
                         <div>
                             <div class="form-group">
                                 <label for="label-name">Document name</label>
-                                <input type="text" class="form-control" id="label-name"
-                                       value="This is the name of document">
+                                <input type="text"
+                                       class="form-control"
+                                       id="label-name"
+                                       value="This is the name of document"
+                                       ng-model="document.name">
                             </div>
                         </div>
                     </div>
@@ -53,7 +56,7 @@
                             <div class="panel-body">
                                 <span class="glyphicon glyphicon-tags"></span>
                                 Tags
-                                <tags-input ng-model="tags" class="ui-tags-input"></tags-input>
+                                <tags-input ng-model="document.tags" class="ui-tags-input"></tags-input>
                             </div>
 
                             <div class="panel-body">
@@ -65,16 +68,15 @@
                                             <input type="text"
                                                    class="form-control"
                                                    datepicker-popup="{{format}}"
-                                                   ng-model="pd"
-                                                   is-open="opened"
+                                                   ng-model="document.pd"
+                                                   is-open="pd.opened"
                                                    datepicker-options="dateOptions"
                                                    date-disabled="disabled(date, mode)"
-                                                   ng-required="true"
                                                    close-text="Close"/>
                                       <span class="input-group-btn">
                                         <button type="button"
                                                 class="btn btn-default"
-                                                ng-click="open($event)">
+                                                ng-click="openPd($event)">
                                             <i class="glyphicon glyphicon-calendar"></i>
                                         </button>
                                       </span>
@@ -92,16 +94,15 @@
                                             <input type="text"
                                                    class="form-control"
                                                    datepicker-popup="{{format}}"
-                                                   ng-model="upd"
-                                                   is-open="opened"
+                                                   ng-model="document.upd"
+                                                   is-open="upd.opened"
                                                    datepicker-options="dateOptions"
                                                    date-disabled="disabled(date, mode)"
-                                                   ng-required="true"
                                                    close-text="Close"/>
                                       <span class="input-group-btn">
                                         <button type="button"
                                                 class="btn btn-default"
-                                                ng-click="open($event)">
+                                                ng-click="openUpd($event)">
                                             <i class="glyphicon glyphicon-calendar"></i>
                                         </button>
                                       </span>
@@ -113,15 +114,9 @@
 
                         <tab heading="Mask params">
                             <div class="panel-body">
-                                <div class="document-param panel-default">
-                                    <div class="panel-heading">Param Name</div>
-                                    <div class="panel-body">Lorem ipsum dolor</div>
-                                </div>
-                                <div class="document-param panel-default">
-                                    <div class="panel-heading">Param Name2</div>
-                                    <div class="panel-body">
-                                        <div text-angular ng-model="tags" fixed-scroll="editor-fixed"></div>
-                                    </div>
+                                <div class="document-param panel-default"
+                                     ng-repeat="(name,type) in mask.params">
+                                    <div wbox-param type="type" name="name"></div>
                                 </div>
                             </div>
                         </tab>

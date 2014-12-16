@@ -1728,31 +1728,68 @@
 
 (function () {
     "use strict";
-    angular.module('app.wbox.directives', []).directive("fixedScroll", function ($window) {
-        return function (scope, element, attrs) {
-            angular.element($window).bind("scroll", function () {
-                var windowScrollTol = this.pageYOffset,
-                    clazz = attrs['fixedScroll'],
-                    $element = jQuery(element).children(".ta-toolbar"),
-                    elementOffset,
-                    elementHeight = $element.height();
-                if ($element.hasClass(clazz)) {
-                    elementOffset = $element.data("top")
-                } else {
-                    elementOffset = $element.offset().top;
-                }
-                if (windowScrollTol > elementOffset - elementHeight) {
-                    if (!$element.hasClass(clazz)) {
-                        $element.data("top", elementOffset)
+    angular.module('app.wbox.directives', []).
+        directive("fixedScroll", function ($window) {
+            return function (scope, element, attrs) {
+                angular.element($window).bind("scroll", function () {
+                    var windowScrollTol = this.pageYOffset,
+                        clazz = attrs['fixedScroll'],
+                        $element = jQuery(element).children(".ta-toolbar"),
+                        elementOffset,
+                        elementHeight = $element.height();
+                    if ($element.hasClass(clazz)) {
+                        elementOffset = $element.data("top")
+                    } else {
+                        elementOffset = $element.offset().top;
                     }
-                    $element.addClass(clazz)
-                } else {
-                    $element.removeClass(clazz)
+                    if (windowScrollTol > elementOffset - elementHeight) {
+                        if (!$element.hasClass(clazz)) {
+                            $element.data("top", elementOffset)
+                        }
+                        $element.addClass(clazz)
+                    } else {
+                        $element.removeClass(clazz)
+                    }
+                    scope.$apply();
+                });
+            };
+        }).
+        directive('wboxParam', ['$compile', function ($compile) {
+            function link(scope, element, attrs) {
+                var heading = '<div class="panel-heading">' + scope.name + '</div>';
+                var input = '';
+                switch (scope.type) {
+                    case "String":
+                        input = '<input type="text" class="form-control" ng-model="document.params.' + scope.name + '"/>';
+                        break;
+                    case "Text":
+                        input = '<div text-angular ng-model="document.params.' + scope.name + '" fixed-scroll="editor-fixed"></div>';
+                        break;
+                    case "Number":
+                        input = '<input type="number" class="form-control" ng-model="document.params.' + scope.name + '"/>';
+                        break;
+                    case "Date":
+                        input = '<input type="text" class="form-control" ng-model="document.params.' + scope.name + '"/>'; //todo: input date
+                        break;
+                    default :
+                        input = '<input type="text" class="form-control" ng-model="document.params.' + scope.name + '"/>';
                 }
-                scope.$apply();
-            });
-        };
-    });
+                var tmpl = heading + '<div class="panel-body">' + input + '</div>';
+                element.replaceWith($compile(tmpl)(scope));
+            };
+
+            return {
+                restrict: 'EA',
+                //scope: {
+                //    'type': '=type',
+                //    'name': '=name'
+                //},
+                link: link,
+                replace: true,
+                terminal: true,
+                priority: 1000
+            };
+        }]);
 }).call(this);
 
 (function () {
@@ -1830,7 +1867,7 @@
             };
         }]).factory('wboxMask', ['$http', '$q', 'logger', 'wboxRepo', function ($http, $q, logger, repo) {
             var repository = repo.get();
-            return {
+            var $mask = {
                 "list": function () {
                     var deffer = $q.defer();
                     $http.get('/wbox/masks', {
@@ -1867,9 +1904,82 @@
                             deffer.reject(data);
                         });
                     return deffer.promise;
+                },
+                'byId': function (id) {//todo: write single method
+                    var deffer = $q.defer();
+                    $mask.list().then(function (masks) {
+                        var mask = _.findWhere(masks, {uuid: id});
+                        if (mask == undefined) {
+                            logger.logError("Error loading masks. Mask not found");
+                        }
+                        deffer.resolve(mask)
+                    }, function (reason) {
+                        deffer.reject(reason);
+                        logger.logError("Error loading masks. " + reason);
+                    });
+                    return deffer.promise;
                 }
-            }
-        }])
+            };
+            return $mask;
+        }]).factory('wboxDocs', ['$http', '$q', 'logger', 'wboxRepo', function ($http, $q, logger, $repo) {
+            var repository = $repo.get();
+            var $docs = {
+                'list': function (maskId) {
+                    var deffer = $q.defer();
+                    $http.get('/wbox/documents?maskId=' + maskId, {
+                        headers: {
+                            "X-Repository": repository + ""
+                        }
+                    }).
+                        success(function (data, status, headers, config) {
+                            var docs = _.filter(data['result'][0].data, function (doc) {
+                                return doc.status !== -1;
+                            });
+                            deffer.resolve(docs);
+                        }).
+                        error(function (data, status, headers, config) {
+                            logger.logError("Error loading masks. " + data['result'][2].message);
+                            deffer.reject(data);
+                        });
+                    return deffer.promise;
+                },
+                'gen': function (doc) {
+                    var deffer = $q.defer();
+                    $http.post('/wbox/documents/new?maskId=' + doc.mask, doc, {
+                        headers: {
+                            "X-Repository": repository + ""
+                        }
+                    }).
+                        success(function (data, status, headers, config) {
+                            var docs = _.filter(data['result'][0].data, function (doc) {
+                                return doc.status !== -1;
+                            });
+                            deffer.resolve(docs);
+                        }).
+                        error(function (data, status, headers, config) {
+                            logger.logError("Error loading masks. " + data['result'][2].message);
+                            deffer.reject(data);
+                        });
+                    return deffer.promise;
+                },
+                'byId': function (id, mask) { //todo: separated method
+                    var deffer = $q.defer();
+                    $docs.list(mask).then(function (docs) {
+                        console.debug(docs)
+                        var doc = _.findWhere(docs, {uuid: id});
+                        if (doc == undefined) {
+                            logger.logError("Error loading masks. Mask not found");
+                        }
+                        deffer.resolve(doc)
+                    }, function (reason) {
+                        deffer.reject(reason);
+                        logger.logError("Error loading masks. " + reason);
+                    });
+                    return deffer.promise;
+                }
+            };
+            return $docs;
+        }]);
 }).call(this);
 
 (function () {
@@ -1998,13 +2108,69 @@
                     emptyMsk();
                 }
             };
-        }]).controller('WboxDocsCtrl', ['$scope', '$location', function ($scope, $location) {
+        }]).
+        controller('WboxDocsCtrl', ['$scope', '$location', 'wboxMask', 'wboxDocs', function ($scope, $location, $mask, $docs) {
 
-            $scope.edit = function () {
-                $location.url("/wbox/documents/edit?id=adasdasdas")
+            $docs.list('la79deuef4bvn0qe5256ddar0l').then(function (docs) {
+                $scope.documents = docs;
+            }, function (reason) {
+
+            });
+
+            $scope.edit = function (doc, $event) {
+                $location.url("/wbox/documents/edit?id=" + doc.uuid + "&mask=" + doc.mask)
+            }
+
+        }]).
+        controller("WboxDocEdit", ['$scope', '$location', 'wboxMask', 'wboxDocs', function ($scope, $location, $mask, $docs) {
+            var id = $location.search()['id'], maskId = $location.search()['mask'];
+
+            $scope.document = {};
+
+            function getMask(id) {
+                $mask.byId(id).then(function (data) {
+                    $scope.mask = data;
+                    if ($scope.document.uuid === undefined) {
+                        $scope.document.mask = $scope.mask.uuid;
+                    }
+                }, function (reason) {
+                    //todo: reason rejected
+                });
+            }
+
+            if (id == undefined) {
+                $scope.isEdit = false;
+                getMask(maskId)
+            } else {
+                $docs.byId(id, maskId).then(function (doc) {//todo: byId method without mask
+                    $scope.document = doc;
+                    getMask(doc.mask);
+                }, function (reason) {
+                    //todo: reason rejected
+                });
+                $scope.isEdit = true;
+            }
+
+            $scope.gen = function () {
+                $scope.document.tags = _.map($scope.document.tags, function (tag) {
+                    return tag['text'];
+                });
+                $docs.gen($scope.document).then(function (docs) {
+                    if (docs.length != 0) {
+                        $location.url("/wbox/documents")
+                    }
+                }, function (reason) {
+
+                })
             };
-        }]).controller("WboxDocEdit", ['$scope', '$location', function ($scope, $location) {
-            var id = $location.url()['id'];
+
+            $scope.pd = {
+                opened: false
+            };
+
+            $scope.upd = {
+                opened: false
+            };
 
             $scope.today = function () {
                 $scope.dt = new Date();
@@ -2025,11 +2191,16 @@
             };
             $scope.toggleMin();
 
-            $scope.open = function ($event) {
+            $scope.openPd = function ($event) {
                 $event.preventDefault();
                 $event.stopPropagation();
+                $scope.pd.opened = true;
+            };
 
-                $scope.opened = true;
+            $scope.openUpd = function ($event) {
+                $event.preventDefault();
+                $event.stopPropagation();
+                $scope.upd.opened = true;
             };
 
             $scope.dateOptions = {
@@ -2040,7 +2211,8 @@
             $scope.formats = ['dd-MMMM-yyyy', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
             $scope.format = $scope.formats[0];
 
-        }]).controller("WboxDocView", ['$scope', '$location', function ($scope, $location) {
+        }]).
+        controller("WboxDocView", ['$scope', '$location', function ($scope, $location) {
             var id = $location.url()['id'];
 
             $scope.back = function () {

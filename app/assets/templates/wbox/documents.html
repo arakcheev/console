@@ -26,13 +26,14 @@
                         <h4>All Documents</h4>
                     </div>
 
-                    <div class="panel panel-default">
+                    <div class="panel panel-default" ng-repeat="document in documents">
                         <div class="panel-body">
 
                             <div class="document-heading">
-                                <span>Document name</span>
+                                <span ng-bind="document.name"></span>
 
                                 <div class="pull-right">
+                                    <i class="ti-pencil" ng-click="edit(document,$event)"></i>
                                     <div class="btn-group" dropdown="">
                                         <button type="button"
                                                 class="btn btn-default"
@@ -53,13 +54,12 @@
 
                             <div class="document-tags">
                                 <span class="glyphicon glyphicon-tags"></span>
-                                <span>Tag1</span>
-                                <span>Tag2</span>
+                                <span ng-repeat="tag in document.tags"> {{tag}} </span>
                             </div>
 
                             <div class="document-footer">
                                 <div class="pull-right">
-                                    id: 8JUFG2KN2F52Q9I4UAD33I6TIT
+                                    id: {{document.uuid}}
                                 </div>
                                 <div>artem.ft@gmail.com</div>
                                 <div>26.10.14</div>
@@ -68,11 +68,11 @@
                         </div>
                     </div>
 
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            Doc2
-                        </div>
-                    </div>
+                    <!--<div class="panel panel-default">-->
+                        <!--<div class="panel-body">-->
+                            <!--Doc2-->
+                        <!--</div>-->
+                    <!--</div>-->
 
                     <div class="divider divider-lg"></div>
                 </div>
