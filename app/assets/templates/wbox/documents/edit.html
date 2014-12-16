@@ -27,14 +27,13 @@
 
                     <div class="panel-body">
                         <div class="pull-right document-ti-font" ng-show="isEdit">
-                            <span class="ti-trash"></span>
-                            <span class="ti-pencil"></span>
+                            <span class="ti-trash pointer" ng-click="del()"></span>
                         </div>
                         <div class="section-header">
-                            <button class="btn btn-default" ng-click="back()"><< Back</button>
+                            <button class="btn btn-default" ng-click="$back()"><< Back</button>
                             <button class="btn btn-default" ng-click="gen()">
                                 <span class="glyphicon glyphicon-floppy-disk"></span>
-                                Save new revision
+                                {{!idEdit? 'Save new revision':'Save'}}
                             </button>
                         </div>
 

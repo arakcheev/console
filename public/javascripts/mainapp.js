@@ -1529,6 +1529,10 @@
                 }
             });
 
+            $scope.$back = function () {
+                window.history.back();
+            };
+
             //fixme: Is user non empty object
             //if (angular.isObject(user)) {
             auth.get().then(function (data) {
@@ -1955,6 +1959,7 @@
                                 return doc.status !== -1;
                             });
                             deffer.resolve(docs);
+                            logger.logSuccess("Successfuly save new document.");
                         }).
                         error(function (data, status, headers, config) {
                             logger.logError("Error loading masks. " + data['result'][2].message);
@@ -1962,19 +1967,40 @@
                         });
                     return deffer.promise;
                 },
-                'byId': function (id, mask) { //todo: separated method
+                'byId': function (id) { //todo: separated method
                     var deffer = $q.defer();
-                    $docs.list(mask).then(function (docs) {
-                        console.debug(docs)
-                        var doc = _.findWhere(docs, {uuid: id});
-                        if (doc == undefined) {
-                            logger.logError("Error loading masks. Mask not found");
+                    $http.get('/wbox/documents' + id, {
+                        headers: {
+                            "X-Repository": repository + ""
                         }
-                        deffer.resolve(doc)
-                    }, function (reason) {
-                        deffer.reject(reason);
-                        logger.logError("Error loading masks. " + reason);
-                    });
+                    }).
+                        success(function (data, status, headers, config) {
+                            var doc = data['result'][0].data;
+                            deffer.resolve(doc);
+                        }).
+                        error(function (data, status, headers, config) {
+                            logger.logError("Error loading document." + data['result'][2].message);
+                            deffer.reject(data);
+                        });
+                    return deffer.promise;
+                }, 'del': function (doc) {
+                    var deffer = $q.defer();
+                    $http.post('/wbox/documents/delete?uuid=' + doc.uuid, {
+                        headers: {
+                            "X-Repository": repository + ""
+                        }
+                    }).
+                        success(function (data, status, headers, config) {
+                            var docs = _.filter(data['result'][0].data, function (doc) {
+                                return doc.status !== -1;
+                            });
+                            deffer.resolve(docs);
+                            logger.logSuccess("Successfuly deleted document.");
+                        }).
+                        error(function (data, status, headers, config) {
+                            logger.logError("Error Deleting document." + data['result'][2].message);
+                            deffer.reject(data);
+                        });
                     return deffer.promise;
                 }
             };
@@ -2142,7 +2168,7 @@
                 $scope.isEdit = false;
                 getMask(maskId)
             } else {
-                $docs.byId(id, maskId).then(function (doc) {//todo: byId method without mask
+                $docs.byId(id).then(function (doc) {
                     $scope.document = doc;
                     getMask(doc.mask);
                 }, function (reason) {
@@ -2162,6 +2188,10 @@
                 }, function (reason) {
 
                 })
+            };
+
+            $scope.del = function () {
+                $docs.del($scope.document)
             };
 
             $scope.pd = {
