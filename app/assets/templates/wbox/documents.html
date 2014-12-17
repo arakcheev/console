@@ -42,12 +42,17 @@
                                                 ng-disabled="disabled"
                                                 aria-haspopup="true"
                                                 aria-expanded="false">
-                                            <i class="ti-eye"></i>
+                                            <i class="glyphicon"
+                                               ng-class="isPublish(document)? 'glyphicon-eye-open' : 'glyphicon-eye-close'"></i>
                                             <span class="caret"></span>
                                         </button>
                                         <ul class="dropdown-menu" role="menu">
-                                            <li><a href="javascript:;">Publish</a></li>
-                                            <li><a href="javascript:;">Unpublish</a></li>
+                                            <li ng-show="!isPublish(document)">
+                                                <a ng-click="publish(document,true)">Publish</a>
+                                            </li>
+                                            <li ng-show="isPublish(document)">
+                                                <a ng-click="publish(document,false)">Unpublish</a>
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>

@@ -1951,8 +1951,7 @@
                             deffer.reject(data);
                         });
                     return deffer.promise;
-                },
-                'gen': function (doc) {
+                }, 'gen': function (doc) {
                     var deffer = $q.defer();
                     $http.post('/wbox/documents/new?maskId=' + doc.mask, doc, {
                         headers: {
@@ -1971,8 +1970,7 @@
                             deffer.reject(data);
                         });
                     return deffer.promise;
-                },
-                'byId': function (id) { //todo: separated method
+                }, 'byId': function (id) { //todo: separated method
                     var deffer = $q.defer();
                     $http.get('/wbox/documents' + id, {
                         headers: {
@@ -2015,17 +2013,26 @@
                         }
                     }).
                         success(function (data, status, headers, config) {
-                            var docs = _.filter(data['result'][0].data, function (doc) {
-                                return doc.status !== -1;
-                            });
-                            deffer.resolve(docs);
+                            //var docs = _.filter(data['result'][0].data, function (doc) {
+                            //    return doc.status !== -1;
+                            //});
+                            deffer.resolve(data['result'][0].data);
                             logger.logSuccess("Successfuly updated document.");
                         }).
                         error(function (data, status, headers, config) {
-                            logger.logError("Error Deleting document." + data['result'][2].message);
+                            logger.logError("Error Updating document." + data['result'][2].message);
                             deffer.reject(data);
                         });
                     return deffer.promise;
+                }, 'publish': function (doc, isPub) {
+                    var now = new Date().getTime();
+                    if (isPub) {
+                        doc.pd = now;
+                        doc.upd = now + 31536000000;
+                    } else {
+                        doc.upd = now;
+                    }
+                    return $docs.update(doc)
                 }
             };
             return $docs;
@@ -2172,6 +2179,27 @@
             }, function () {
 
             });
+
+            $scope.isPublish = function (doc) {
+                var now = new Date().getTime();
+                return (doc.publishDate <= now && doc.unpublishDate > now)
+            };
+
+            $scope.publish = function (doc, isPub) {
+                //var now = new Date().getTime();
+                //if (isPub) {
+                //    doc.publishDate = now;
+                //    doc.unpublishDate = now + 31536000000;
+                //} else {
+                //    doc.unpublishDate = now;
+                //}
+                $docs.publish(doc, isPub).then(function (data) {
+                    doc.publishDate = data.publishDate;
+                    doc.unpublishDate = data.unpublishDate;
+                }, function (reason) {
+
+                })
+            };
 
             $scope.newDoc = function (mask) {
                 $location.url("/wbox/documents/edit?mask=" + mask.uuid)
