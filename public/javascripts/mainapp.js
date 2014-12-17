@@ -1939,7 +1939,12 @@
                             var docs = _.filter(data['result'][0].data, function (doc) {
                                 return doc.status !== -1;
                             });
-                            deffer.resolve(docs);
+
+                            deffer.resolve(_.map(_.groupBy(docs, 'uuid'), function (value, key) {
+                                return _.max(value, function (doc) {
+                                    return doc.revision;
+                                });
+                            }));
                         }).
                         error(function (data, status, headers, config) {
                             logger.logError("Error loading masks. " + data['result'][2].message);
@@ -1985,7 +1990,7 @@
                     return deffer.promise;
                 }, 'del': function (doc) {
                     var deffer = $q.defer();
-                    $http.post('/wbox/documents/delete?uuid=' + doc.uuid, {
+                    $http.post('/wbox/documents/delete?uuid=' + doc.uuid, {}, {
                         headers: {
                             "X-Repository": repository + ""
                         }
@@ -1996,6 +2001,25 @@
                             });
                             deffer.resolve(docs);
                             logger.logSuccess("Successfuly deleted document.");
+                        }).
+                        error(function (data, status, headers, config) {
+                            logger.logError("Error Deleting document." + data['result'][2].message);
+                            deffer.reject(data);
+                        });
+                    return deffer.promise;
+                }, 'update': function (doc) {
+                    var deffer = $q.defer();
+                    $http.post('/wbox/documents/update?uuid=' + doc.uuid, doc, {
+                        headers: {
+                            "X-Repository": repository + ""
+                        }
+                    }).
+                        success(function (data, status, headers, config) {
+                            var docs = _.filter(data['result'][0].data, function (doc) {
+                                return doc.status !== -1;
+                            });
+                            deffer.resolve(docs);
+                            logger.logSuccess("Successfuly updated document.");
                         }).
                         error(function (data, status, headers, config) {
                             logger.logError("Error Deleting document." + data['result'][2].message);
@@ -2054,7 +2078,7 @@
 
             $scope.del = function (repository) {
                 repo.del(repository.uuid).then(function (repo) {
-//todo: remove from scope array
+                    //todo: remove from scope array
                 }, function (reason) {
 
                 })
@@ -2135,13 +2159,23 @@
                 }
             };
         }]).
-        controller('WboxDocsCtrl', ['$scope', '$location', 'wboxMask', 'wboxDocs', function ($scope, $location, $mask, $docs) {
+        controller('WboxDocsCtrl', ['$scope', '$location', 'wboxMask', 'wboxDocs', function ($scope, $location, $masks, $docs) {
 
-            $docs.list('la79deuef4bvn0qe5256ddar0l').then(function (docs) {
+            $docs.list('la79deuef4bvn0qe5256ddar0l').then(function (docs) {//todo: nedd all docs list withut masks
                 $scope.documents = docs;
             }, function (reason) {
 
             });
+
+            $masks.list().then(function (masks) {
+                $scope.masks = masks;
+            }, function () {
+
+            });
+
+            $scope.newDoc = function (mask) {
+                $location.url("/wbox/documents/edit?mask=" + mask.uuid)
+            };
 
             $scope.edit = function (doc, $event) {
                 $location.url("/wbox/documents/edit?id=" + doc.uuid + "&mask=" + doc.mask)
@@ -2181,17 +2215,36 @@
                 $scope.document.tags = _.map($scope.document.tags, function (tag) {
                     return tag['text'];
                 });
-                $docs.gen($scope.document).then(function (docs) {
-                    if (docs.length != 0) {
-                        $location.url("/wbox/documents")
-                    }
-                }, function (reason) {
+                console.log($scope.document)
+                if ($scope.document.publishDate != 0) {
+                    $scope.document.pd = new Date($scope.document.publishDate).getTime();
+                }
+                if ($scope.document.unpublishDate != 0) {
+                    $scope.document.upd = new Date($scope.document.unpublishDate).getTime();
+                }
+                if ($scope.isEdit) {
+                    $docs.update($scope.document).then(function () {
 
-                })
+                    }, function () {
+
+                    })
+                } else {
+                    $docs.gen($scope.document).then(function (docs) {
+                        if (docs.length != 0) {
+                            $location.url("/wbox/documents")
+                        }
+                    }, function (reason) {
+
+                    })
+                }
             };
 
             $scope.del = function () {
-                $docs.del($scope.document)
+                $docs.del($scope.document).then(function () {
+                    $scope['$back'].call(this);
+                }, function () {
+
+                })
             };
 
             $scope.pd = {

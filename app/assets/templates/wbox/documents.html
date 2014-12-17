@@ -34,6 +34,7 @@
 
                                 <div class="pull-right">
                                     <i class="ti-pencil" ng-click="edit(document,$event)"></i>
+
                                     <div class="btn-group" dropdown="">
                                         <button type="button"
                                                 class="btn btn-default"
@@ -69,9 +70,9 @@
                     </div>
 
                     <!--<div class="panel panel-default">-->
-                        <!--<div class="panel-body">-->
-                            <!--Doc2-->
-                        <!--</div>-->
+                    <!--<div class="panel-body">-->
+                    <!--Doc2-->
+                    <!--</div>-->
                     <!--</div>-->
 
                     <div class="divider divider-lg"></div>
@@ -84,17 +85,19 @@
                 <div class="panel-body">
 
                     <div class="btn-group dropdown" dropdown="" is-open="status.isopen11">
-                        <button type="button" class="btn btn-default" ng-click="edit()">New Document</button>
                         <button type="button"
                                 class="btn btn-default"
                                 dropdown-toggle=""
                                 ng-disabled="disabled"
                                 aria-haspopup="true"
                                 aria-expanded="false">
+                            New Document
                             <span class="ti-angle-down"></span>
                         </button>
                         <ul class="dropdown-menu">
-                            <li><a href="javascript:;">Mask 1</a></li>
+                            <li ng-repeat="mask in masks">
+                                <a ng-click="newDoc(mask)">{{mask.name}}</a>
+                            </li>
                         </ul>
                     </div>
 

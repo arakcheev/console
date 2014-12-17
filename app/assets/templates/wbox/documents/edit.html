@@ -33,7 +33,7 @@
                             <button class="btn btn-default" ng-click="$back()"><< Back</button>
                             <button class="btn btn-default" ng-click="gen()">
                                 <span class="glyphicon glyphicon-floppy-disk"></span>
-                                {{!idEdit? 'Save new revision':'Save'}}
+                                <span>{{ isEdit ? "Update" : "Save" }} document</span>
                             </button>
                         </div>
 
@@ -67,7 +67,7 @@
                                             <input type="text"
                                                    class="form-control"
                                                    datepicker-popup="{{format}}"
-                                                   ng-model="document.pd"
+                                                   ng-model="document.publishDate"
                                                    is-open="pd.opened"
                                                    datepicker-options="dateOptions"
                                                    date-disabled="disabled(date, mode)"
@@ -93,7 +93,7 @@
                                             <input type="text"
                                                    class="form-control"
                                                    datepicker-popup="{{format}}"
-                                                   ng-model="document.upd"
+                                                   ng-model="document.unpublishDate"
                                                    is-open="upd.opened"
                                                    datepicker-options="dateOptions"
                                                    date-disabled="disabled(date, mode)"
