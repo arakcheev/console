@@ -2186,13 +2186,6 @@
             };
 
             $scope.publish = function (doc, isPub) {
-                //var now = new Date().getTime();
-                //if (isPub) {
-                //    doc.publishDate = now;
-                //    doc.unpublishDate = now + 31536000000;
-                //} else {
-                //    doc.unpublishDate = now;
-                //}
                 $docs.publish(doc, isPub).then(function (data) {
                     doc.publishDate = data.publishDate;
                     doc.unpublishDate = data.unpublishDate;
