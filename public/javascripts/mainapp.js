@@ -1726,7 +1726,7 @@
 }).call(this);
 
 (function () {
-    angular.module('app.wbox', ['app.wbox.services', 'app.wbox.controllers', 'textAngular', 'app.wbox.directives'])
+    angular.module('app.wbox', ['app.wbox.services', 'app.wbox.controllers', 'textAngular', 'app.wbox.directives', 'app.wbox.filters'])
 }).call(this);
 
 (function () {
@@ -1802,6 +1802,20 @@
 
 (function () {
     "use strict";
+    angular.module('app.wbox.filters', []).
+        filter('docList', function () {
+            return function (docs) {
+                if (docs !== undefined) {
+                    console.debug(docs)
+                }
+                return docs;
+            }
+        })
+
+}).call(this);
+
+(function () {
+    "use strict";
     angular.module('app.wbox.services', []).
         factory('wboxRepo', ['$http', '$q', 'logger', '$localStorage', function ($http, $q, logger, $localStorage) {
             return {
@@ -1873,7 +1887,8 @@
                     return $localStorage.repository;
                 }
             };
-        }]).factory('wboxMask', ['$http', '$q', 'logger', 'wboxRepo', function ($http, $q, logger, repo) {
+        }]).
+        factory('wboxMask', ['$http', '$q', 'logger', 'wboxRepo', function ($http, $q, logger, repo) {
             var repository = repo.get();
             var $mask = {
                 "list": function () {
@@ -1926,10 +1941,19 @@
                         logger.logError("Error loading masks. " + reason);
                     });
                     return deffer.promise;
+                }, 'filter': function ($query, masks) {
+                    var deffer = $q.defer();
+                    deffer.resolve(_.map(_.filter(masks, function (item) {
+                        return item.name.indexOf($query > -1)
+                    }), function (item) {
+                        return item;
+                    }));
+                    return deffer.promise;
                 }
             };
             return $mask;
-        }]).factory('wboxDocs', ['$http', '$q', 'logger', 'wboxRepo', function ($http, $q, logger, $repo) {
+        }]).
+        factory('wboxDocs', ['$http', '$q', 'logger', 'wboxRepo', function ($http, $q, logger, $repo) {
             var repository = $repo.get();
             var $docs = {
                 'list': function (maskId) {
@@ -2182,6 +2206,8 @@
 
             });
 
+            $scope.filter = {};
+
             $masks.list().then(function (masks) {
                 $scope.masks = masks;
             }, function () {
@@ -2210,9 +2236,42 @@
                 $location.url("/wbox/documents/edit?id=" + doc.uuid + "&mask=" + doc.mask)
             };
 
-            $scope.view = function (doc, $event) {
+            this.view = function (doc, $event) {
                 $location.url("/wbox/documents/view?id=" + doc.uuid)
-            }
+            };
+
+            this.f = function (doc) {
+                var result;
+                if ($scope.filter['name'] === '' || $scope.filter['name'] === undefined) {
+                    result = doc;
+                } else {
+                    if (doc.name.indexOf($scope.filter['name']) > -1) {
+                        result = doc;
+                    } else {
+                        result = null;
+                    }
+                }
+
+                var masks = _.map($scope.filter['mask'], function (msk) {
+                    return msk['uuid'];
+                });
+                if (masks.length > 0) {
+                    if (_.contains(masks, doc.mask)) {
+                        result = doc;
+                    } else {
+                        result = null;
+                    }
+
+                } else {
+                    result = doc;
+                }
+
+                return result;
+            };
+
+            this.maskQuery = function ($query) {
+                return $masks.filter($query, $scope.masks);
+            };
 
         }]).
         controller("WboxDocEdit", ['$scope', '$location', 'wboxMask', 'wboxDocs', function ($scope, $location, $mask, $docs) {

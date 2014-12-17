@@ -13,7 +13,7 @@
   ~  See the License for the specific language governing permissions and
   ~  limitations under the License.
   -->
-<div class="page" ng-controller="WboxDocsCtrl">
+<div class="page" ng-controller="WboxDocsCtrl as wboxDocs">
     <div class="row">
         <div class="col-md-9">
             <section class="panel panel-default">
@@ -26,11 +26,12 @@
                         <h4>All Documents</h4>
                     </div>
 
-                    <div class="panel panel-default" ng-repeat="document in documents">
+                    <div class="panel panel-default" ng-repeat="document in documents | filter:wboxDocs.f">
                         <div class="panel-body">
 
                             <div class="document-heading">
-                                <a ng-bind="document.name" ng-click="view(document,$event)" class="pointer"></a>
+                                <a ng-bind="document.name" ng-click="wboxDocs.view(document,$event)"
+                                   class="pointer"></a>
 
                                 <div class="pull-right">
                                     <!--<i class="ti-pencil" ng-click="edit(document,$event)"></i>-->
@@ -110,7 +111,8 @@
                     <form class="form-horizontal" role="form">
                         <div class="form-group">
                             <div class="col-sm-12">
-                                <input type="text" class="form-control" placeholder="Search by name">
+                                <input type="text" class="form-control" ng-model="filter.name"
+                                       placeholder="Search by name">
                             </div>
                         </div>
                     </form>
@@ -121,8 +123,10 @@
                                 Mask <i class="pull-right glyphicon"
                                         ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
                             </accordion-heading>
-                            <div ng-controller="TagsDemoCtrl">
-                                <tags-input ng-model="tags" class="ui-tags-input" placeholder="Add mask"></tags-input>
+                            <div>
+                                <tags-input ng-model="filter.mask" display-property='name' class="ui-tags-input" placeholder="Add mask">
+                                    <auto-complete source="wboxDocs.maskQuery($query)"></auto-complete>
+                                </tags-input>
                             </div>
                         </accordion-group>
                     </accordion>
