@@ -13,44 +13,43 @@
   ~  See the License for the specific language governing permissions and
   ~  limitations under the License.
   -->
-
-<div class="page" ng-controller="WboxDocView as parent">
+<div class="page" ng-controller="WboxDocHistory as docHistory">
     <div class="row">
         <div class="col-md-9">
             <section class="panel panel-default">
 
                 <div class="panel-heading">
                     <strong><span class="glyphicon glyphicon-th"></span>
-                        Document view</strong>
+                        Documents changing history</strong>
                 </div>
 
                 <div class="panel-body">
-                    <div class="pull-right document-ti-font" ng-if="document.id !== undefined">
-                        <span class="ti-vector pointer" ng-click="history($event)"></span>
-                        <span class="ti-trash pointer"></span>
-                        <span class="ti-pencil pointer" ng-click="edit($event)"></span>
-                    </div>
                     <div class="section-header">
                         <button class="btn btn-default" ng-click="$back()"><< Back</button>
                     </div>
-                    <div class=" document-name" ng-bind="document.name">
+                    <div class="document-name" ng-bind-html="docHistory.compared.name | diff:docHistory.document.name">
                     </div>
                 </div>
 
-                <div ng-if="document.id !== undefined">
-                    <div class="panel-body">
-                        <div class="pull-right">
-                            id: {{document.uuid}}
-                        </div>
-                        <span class="glyphicon glyphicon-tags"> </span>
-                        <span ng-repeat="tag in document.tags"> {{tag}} </span>
-                    </div>
+                <div>
+                    <!--<div class="panel-body">-->
+                    <!--<div class="pull-right">-->
+                    <!--id: {{document.uuid}}-->
+                    <!--</div>-->
+                    <!--<span class="glyphicon glyphicon-tags"> </span>-->
+                    <!--<span ng-repeat="tag in document.tags"> {{tag}} </span>-->
+                    <!--</div>-->
 
                     <div class="panel-body">
                         <div class="panel-body">
                             <div class="document-param panel-default"
-                                 ng-repeat="(name,type) in document.params">
-                                <div wbox-param type="type" name="name" view></div>
+                                 ng-repeat="(name,value) in docHistory.document.params">
+                                <div class="panel-heading">{{name}}</div>
+                                <div class="panel-body">
+                                    <pre ng-bind-html="docHistory.compared.params[name]|diff:docHistory.document.params[name]"></pre>
+                                </div>
+
+                                <!--<div wbox-param type="type" name="name" view="docHistory.compared.params[name]"></div>-->
                             </div>
                         </div>
                     </div>
@@ -67,8 +66,13 @@
 
         <div class="col-md-3">
             <section class="panel panel-default">
-                <div class="panel-body">
-                    this is side bar
+                <div class="panel-body nav-container">
+                    <ul class="nav">
+                        <li ng-repeat="doc in docHistory.documents"
+                            ng-class="{'active': docHistory.compared == doc}">
+                            <a ng-click="docHistory.setDoc(doc,$event)" class="pointer">Revision {{doc.revision}}</a>
+                        </li>
+                    </ul>
                 </div>
             </section>
         </div>

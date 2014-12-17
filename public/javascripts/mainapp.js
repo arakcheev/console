@@ -1221,6 +1221,7 @@
                 ":system/documents",
                 ":system/documents/edit",
                 ":system/documents/view",
+                ":system/documents/history",
                 "dashboard",
                 "ui/typography",
                 "ui/buttons",
@@ -1726,7 +1727,7 @@
 }).call(this);
 
 (function () {
-    angular.module('app.wbox', ['app.wbox.services', 'app.wbox.controllers', 'textAngular', 'app.wbox.directives', 'app.wbox.filters'])
+    angular.module('app.wbox', ['app.wbox.services', 'app.wbox.controllers', 'textAngular', 'app.wbox.directives', 'app.wbox.filters', 'diff'])
 }).call(this);
 
 (function () {
@@ -1760,10 +1761,14 @@
         directive('wboxParam', ['$compile', function ($compile) {
             function link(scope, element, attrs) {
                 var heading = '<div class="panel-heading">' + scope.name + '</div>';
-                var isView = attrs['view'] === '';
+                var isView = attrs['view'] !== undefined;
                 var input = '';
                 if (isView) {
-                    input = '<p>' + scope.type + '</p>';
+                    if (scope.compared != undefined) {
+                        input = '<div ng-bind-html="docHistory.compared.params['+scope.name+'] | diff: docHistory.document.params['+scope.name+']" >'+'</div>';
+                    } else {
+                        input = '<p>' + scope.type + '</p>';
+                    }
                 } else {
                     switch (scope.type) {
                         case "String":
@@ -1789,8 +1794,9 @@
             return {
                 restrict: 'EA',
                 //scope: {
-                //    'type': '=type',
-                //    'name': '=name'
+                //    'compared': '=view',
+                //    'name': '=name',
+                //    'type': '=type'
                 //},
                 link: link,
                 replace: true,
@@ -2066,6 +2072,24 @@
                         doc.upd = now;
                     }
                     return $docs.update(doc)
+                }, 'history': function (id) {
+                    var deffer = $q.defer();
+                    $http.get('/wbox/documents/history' + id, {
+                        headers: {
+                            "X-Repository": repository + ""
+                        }
+                    }).
+                        success(function (data, status, headers, config) {
+                            var docs = _.filter(data['result'][0].data, function (doc) {
+                                return doc.status !== -1;
+                            });
+                            deffer.resolve(docs);
+                        }).
+                        error(function (data, status, headers, config) {
+                            logger.logError("Error getting documents." + data['result'][2].message);
+                            deffer.reject(data);
+                        });
+                    return deffer.promise;
                 }
             };
             return $docs;
@@ -2403,6 +2427,27 @@
             $scope.edit = function ($event) {
                 $location.url("/wbox/documents/edit?id=" + $scope.document.uuid)
             };
+
+            $scope.history = function ($event) {
+                $location.url("/wbox/documents/history?id=" + $scope.document.uuid);
+            }
+
+        }]).controller("WboxDocHistory", ['$scope', '$location', 'wboxDocs', function ($scope, $location, $docs) {
+            var id = $location.search()['id'], $this = this;
+
+            $docs.history(id).then(function (docs) {
+                $this.documents = docs;
+                $this.document = _.max(docs, function (doc) {
+                    return doc['revision']
+                });
+                $this.compared = _.findWhere(docs, {'revision': $this.document['revision'] - 1})
+            }, function (reason) {
+
+            });
+
+            this.setDoc = function (doc) {
+                $this.compared = doc;
+            }
 
         }]);
 }).call(this);
