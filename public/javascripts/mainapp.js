@@ -1594,7 +1594,6 @@
         }])
 }.call(this);
 
-
 (function () {
     "use strict";
     angular.module('app.auth.services', []).
@@ -1761,22 +1760,27 @@
         directive('wboxParam', ['$compile', function ($compile) {
             function link(scope, element, attrs) {
                 var heading = '<div class="panel-heading">' + scope.name + '</div>';
+                var isView = attrs['view'] === '';
                 var input = '';
-                switch (scope.type) {
-                    case "String":
-                        input = '<input type="text" class="form-control" ng-model="document.params.' + scope.name + '"/>';
-                        break;
-                    case "Text":
-                        input = '<div text-angular ng-model="document.params.' + scope.name + '" fixed-scroll="editor-fixed"></div>';
-                        break;
-                    case "Number":
-                        input = '<input type="number" class="form-control" ng-model="document.params.' + scope.name + '"/>';
-                        break;
-                    case "Date":
-                        input = '<input type="text" class="form-control" ng-model="document.params.' + scope.name + '"/>'; //todo: input date
-                        break;
-                    default :
-                        input = '<input type="text" class="form-control" ng-model="document.params.' + scope.name + '"/>';
+                if (isView) {
+                    input = '<p>' + scope.type + '</p>';
+                } else {
+                    switch (scope.type) {
+                        case "String":
+                            input = '<input type="text" class="form-control" ng-model="document.params.' + scope.name + '"/>';
+                            break;
+                        case "Text":
+                            input = '<div text-angular ng-model="document.params.' + scope.name + '" fixed-scroll="editor-fixed"></div>';
+                            break;
+                        case "Number":
+                            input = '<input type="number" class="form-control" ng-model="document.params.' + scope.name + '"/>';
+                            break;
+                        case "Date":
+                            input = '<input type="text" class="form-control" ng-model="document.params.' + scope.name + '"/>'; //todo: input date
+                            break;
+                        default :
+                            input = '<input type="text" class="form-control" ng-model="document.params.' + scope.name + '"/>';
+                    }
                 }
                 var tmpl = heading + '<div class="panel-body">' + input + '</div>';
                 element.replaceWith($compile(tmpl)(scope));
@@ -1979,7 +1983,12 @@
                     }).
                         success(function (data, status, headers, config) {
                             var doc = data['result'][0].data;
-                            deffer.resolve(doc);
+                            if (doc === undefined || doc === null) {
+                                logger.logError("Error loading document. Document is null");
+                                deffer.reject(data);
+                            } else {
+                                deffer.resolve(doc);
+                            }
                         }).
                         error(function (data, status, headers, config) {
                             logger.logError("Error loading document." + data['result'][2].message);
@@ -2147,7 +2156,6 @@
                 })
             };
 
-
             $mask.list().then(function (data) {
                 $scope.masks = data;
                 if ($scope.masks.length === 0) {
@@ -2200,6 +2208,10 @@
 
             $scope.edit = function (doc, $event) {
                 $location.url("/wbox/documents/edit?id=" + doc.uuid + "&mask=" + doc.mask)
+            };
+
+            $scope.view = function (doc, $event) {
+                $location.url("/wbox/documents/view?id=" + doc.uuid)
             }
 
         }]).
@@ -2316,12 +2328,22 @@
             $scope.format = $scope.formats[0];
 
         }]).
-        controller("WboxDocView", ['$scope', '$location', function ($scope, $location) {
-            var id = $location.url()['id'];
+        controller("WboxDocView", ['$scope', '$location', 'wboxDocs', function ($scope, $location, $docs) {
+            var id = $location.search()['id'];
+
+            $docs.byId(id).then(function (doc) {
+                $scope.document = doc;
+            }, function (reason) {
+
+            });
 
             $scope.back = function () {
-                console.log("Go back");//todo:
-            }
+                $scope['$back'].call(this);
+            };
+
+            $scope.edit = function ($event) {
+                $location.url("/wbox/documents/edit?id=" + $scope.document.uuid)
+            };
 
         }]);
 }).call(this);

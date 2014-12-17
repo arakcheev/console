@@ -30,10 +30,10 @@
                         <div class="panel-body">
 
                             <div class="document-heading">
-                                <span ng-bind="document.name"></span>
+                                <a ng-bind="document.name" ng-click="view(document,$event)" class="pointer"></a>
 
                                 <div class="pull-right">
-                                    <i class="ti-pencil" ng-click="edit(document,$event)"></i>
+                                    <!--<i class="ti-pencil" ng-click="edit(document,$event)"></i>-->
 
                                     <div class="btn-group" dropdown="">
                                         <button type="button"
@@ -68,7 +68,7 @@
                                     id: {{document.uuid}}
                                 </div>
                                 <div>artem.ft@gmail.com</div>
-                                <div>26.10.14</div>
+                                <div>{{document.date | date:"dd MMM yyyy 'at' h:mma"}}</div>
                             </div>
 
                         </div>

@@ -25,37 +25,39 @@
                 </div>
 
                 <div class="panel-body">
-                    <div class="pull-right document-ti-font">
-                        <span class="ti-trash"></span>
-                        <span class="ti-pencil"></span>
+                    <div class="pull-right document-ti-font" ng-if="document.id !== undefined">
+                        <span class="ti-trash pointer"></span>
+                        <span class="ti-pencil pointer" ng-click="edit($event)"></span>
                     </div>
                     <div class="section-header">
-                        <button class="btn btn-default" ng-click="back()"><< Back</button>
+                        <button class="btn btn-default" ng-click="$back()"><< Back</button>
                     </div>
-                    <div class=" document-name">
-                        This is name of document
+                    <div class=" document-name" ng-bind="document.name">
                     </div>
                 </div>
 
-                <div class="panel-body">
-                    <div class="pull-right">
-                        id: asdadasdasdasds
-                    </div>
-                    <span class="glyphicon glyphicon-tags"></span>
-                    <span>Tag1</span>
-                    <span>Tag2</span>
-                </div>
-
-                <div class="panel-body">
-                   <div class="document-param panel-default">
-                       <div class="panel-heading">Param Name</div>
-                       <div class="panel-body">Lorem ipsum dolor</div>
-                   </div>
-                    <div class="document-param panel-default">
-                        <div class="panel-heading">Param Name2</div>
-                        <div class="panel-body">
-                            param value
+                <div ng-if="document.id !== undefined">
+                    <div class="panel-body">
+                        <div class="pull-right">
+                            id: {{document.uuid}}
                         </div>
+                        <span class="glyphicon glyphicon-tags"> </span>
+                        <span ng-repeat="tag in document.tags"> {{tag}} </span>
+                    </div>
+
+                    <div class="panel-body">
+                        <div class="panel-body">
+                            <div class="document-param panel-default"
+                                 ng-repeat="(name,type) in document.params">
+                                <div wbox-param type="type" name="name" view></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div ng-if="document.id === undefined">
+                    <div class="panel-body">
+                        <h2>Document Not Found</h2>
                     </div>
                 </div>
 
