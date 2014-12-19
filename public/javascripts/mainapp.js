@@ -1966,9 +1966,9 @@
         factory('wboxDocs', ['$http', '$q', 'logger', 'wboxRepo', function ($http, $q, logger, $repo) {
             var repository = $repo.get();
             var $docs = {
-                'list': function (maskId) {
+                'list': function () {
                     var deffer = $q.defer();
-                    $http.get('/wbox/documents?maskId=' + maskId, {
+                    $http.get('/wbox/documents', {
                         headers: {
                             "X-Repository": repository + ""
                         }
@@ -2094,6 +2094,12 @@
                             deffer.reject(data);
                         });
                     return deffer.promise;
+                }, 'byRelease': function (release) {
+                    return $docs.list().then(function (docs) {
+                        return _.filter(docs, function (doc) {
+                            return doc['release'] === release['uuid'];
+                        })
+                    })
                 }
             };
             return $docs;
@@ -2199,6 +2205,61 @@
                 }
             };
             return $att;
+        }]).
+        factory('wboxRelease', ['$http', '$q', 'wboxRepo', 'logger', function ($http, $q, $repo, logger) {
+            var repository = $repo.get();
+            var $release = {
+                'gen': function (name) {
+                    var deffer = $q.defer();
+                    $http.post('/wbox/releases/new', {name: name}, {
+                        headers: {
+                            "X-Repository": repository + ""
+                        }
+                    }).
+                        success(function (data, status, headers, config) {
+                            deffer.resolve(data['result'][0].data);
+                        }).
+                        error(function (data, status, headers, config) {
+                            logger.logError("Error create new release." + data['result'][2].message);
+                            deffer.reject(data);
+                        });
+                    return deffer.promise;
+                }, 'list': function () {
+                    var deffer = $q.defer();
+                    $http.get('/wbox/releases', {
+                        headers: {
+                            "X-Repository": repository + ""
+                        }
+                    }).
+                        success(function (data, status, headers, config) {
+                            deffer.resolve(_.filter(data['result'][0].data, function (doc) {
+                                return doc.status !== -1;
+                            }));
+                        }).
+                        error(function (data, status, headers, config) {
+                            logger.logError("Error getting releases" + data['result'][2].message);
+                            deffer.reject(data);
+                        });
+                    return deffer.promise;
+                }, 'push': function (doc, release) {
+                    var deffer = $q.defer();
+                    $http.post('/wbox/releases/push', {release: release.uuid, doc: doc.uuid}, {
+                        headers: {
+                            "X-Repository": repository + ""
+                        }
+                    }).
+                        success(function (data, status, headers, config) {
+                            deffer.resolve(data['result'][0].data);
+                        }).
+                        error(function (data, status, headers, config) {
+                            logger.logError("Error getting releases" + data['result'][2].message);
+                            deffer.reject(data);
+                        });
+                    return deffer.promise;
+                }
+            };
+
+            return $release;
         }]);
 }).call(this);
 
@@ -2330,7 +2391,7 @@
         }]).
         controller('WboxDocsCtrl', ['$scope', '$location', 'wboxMask', 'wboxDocs', function ($scope, $location, $masks, $docs) {
 
-            $docs.list('dsggr9g2rpch6kk9mgniveamha').then(function (docs) {//todo: nedd all docs list withut masks
+            $docs.list().then(function (docs) {//todo: nedd all docs list withut masks
                 $scope.documents = docs;
             }, function (reason) {
 
@@ -2404,8 +2465,8 @@
             };
 
         }]).
-        controller("WboxDocEdit", ['$scope', '$location', 'wboxMask', 'wboxDocs', function ($scope, $location, $mask, $docs) {
-            var id = $location.search()['id'], maskId = $location.search()['mask'];
+        controller("WboxDocEdit", ['$scope', '$location', 'wboxMask', 'wboxDocs', 'wboxRelease', function ($scope, $location, $mask, $docs, $release) {
+            var id = $location.search()['id'], maskId = $location.search()['mask'], $this = this;
 
             $scope.document = {};
 
@@ -2433,6 +2494,10 @@
                 $scope.isEdit = true;
             }
 
+            $release.list().then(function (releases) {
+                $this.releases = releases;
+            });
+
             $scope.gen = function () {
                 $scope.document.tags = _.map($scope.document.tags, function (tag) {
                     return tag['text'];
@@ -2444,8 +2509,10 @@
                     $scope.document.upd = new Date($scope.document.unpublishDate).getTime();
                 }
                 if ($scope.isEdit) {
-                    $docs.update($scope.document).then(function () {
-
+                    $docs.update($scope.document).then(function (doc) {
+                        if ($this['release'] !== undefined) {
+                            $release.push(doc, $this['release']);
+                        }
                     }, function () {
 
                     })
@@ -2470,6 +2537,15 @@
 
             $scope.uploadFile = function () {
                 $location.url("/wbox/attachments/edit?entity=" + $scope.document['uuid'])
+            };
+
+            $this.pushToRelease = function (release) {
+                $this.release = release;
+                if ($scope.isEdit) {
+                    $release.push($scope.document, $this['release']);
+                } else {
+                    $scope.gen();
+                }
             };
 
             $scope.pd = {
@@ -2647,6 +2723,27 @@
             $scope.onImageChange = function () {
                 console.log('img change');
             }
+
+        }]).
+        controller('WboxReleaseCtrl', ['$scope', '$location', 'wboxRelease', 'wboxDocs', function ($scope, $location, $release, $docs) {
+            var $this = this;
+
+            $release.list().then(function (releases) {
+                $this.releases = releases;
+            });
+
+            $this.plan = function () {
+                $release.gen($this.name).then(function (release) {
+                    window.location.reload();
+                })
+            };
+
+            $this.set = function (release) {
+                $this.active = release;
+                $docs.byRelease(release).then(function (docs) {
+                    $this.documents = docs;
+                })
+            };
 
         }]);
 }).call(this);

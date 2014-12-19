@@ -1,0 +1,41 @@
+<!--
+  ~ Copyright 2014. Arakcheev Artem (artem.arakcheev@phystech.edu)
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~  http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+<div class="page" ng-controller="WboxReleaseCtrl as releaseCtrl">
+    <div class="row">
+        <div class="col-md-9">
+            <section class="panel panel-default">
+                <div class="panel-body" ng-if="releaseCtrl.documents.length === 0">
+                    <h2>There is no changes published to this release yet!</h2>
+                </div>
+            </section>
+        </div>
+        <div class="col-md-3">
+            <section class="panel-body nav-container">
+                <ul class="nav">
+                    <li>
+                        <input class="input" placeholder="Plan a new release" ng-model="releaseCtrl.name">
+                        <span class="ti-layout-placeholder" ng-click="releaseCtrl.plan()"></span>
+                    </li>
+                    <li ng-repeat="release in releaseCtrl.releases"
+                        ng-class="{'active': releaseCtrl.active == release}">
+                        <a class="pointer" ng-bind="release.name" ng-click="releaseCtrl.set(release)"></a>
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </div>
+
+</div>

@@ -14,7 +14,7 @@
   ~  limitations under the License.
   -->
 
-<div class="page" ng-controller="WboxDocEdit as parent">
+<div class="page" ng-controller="WboxDocEdit as docEdit">
     <div class="row">
         <div class="col-md-9">
             <section class="panel panel-default">
@@ -46,8 +46,8 @@
                                     <span class="ti-angle-down"></span>
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li >
-                                        <a >Release 1</a>
+                                    <li ng-repeat="release in docEdit.releases">
+                                        <a ng-bind="release.name" ng-click="docEdit.pushToRelease(release)"></a>
                                     </li>
                                 </ul>
                             </div>

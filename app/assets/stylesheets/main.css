@@ -13182,3 +13182,17 @@ del{
     color: #2a6496;
     text-decoration: none;
 }
+
+.release-timeline{
+    position: relative;
+}
+
+.release-timeline:before{
+    content: '';
+    position: relative;
+    top: 20px;
+    left: 29px;
+    width: 4px;
+    bottom: 15px;
+    background: #596271;
+}
