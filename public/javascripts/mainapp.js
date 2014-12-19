@@ -1617,6 +1617,7 @@
                 },
                 "signin": function (email, password) {
                     var deffer = $q.defer();
+                    console.log("asdas")
                     $http.post('/signin', {email: email, pass: password}).
                         success(function (data, status, headers, config) {
                             deffer.resolve(data['result'][0]);
@@ -1634,7 +1635,7 @@
                             deffer.resolve(data['result'][0]);
                         }).
                         error(function (data, status, headers, config) {
-                            logger.logError(data['result'][2].message);
+                            logger.logError("TODO: get user redirect");
                             deffer.reject(data);
                         });
                     return deffer.promise;
@@ -2140,11 +2141,34 @@
                     }
                     return deffer.promise;
                 }, 'gen': function (attach) {
-                    if (attach['entity'] === undefined) {
-                        attach['entity'] = repository;
+                    if (attach['id'] !== undefined) {
+                        return $att.update(attach)
+                    } else {
+                        if (attach['entity'] === undefined) {
+                            attach['entity'] = repository;
+                        }
+                        var deffer = $q.defer();
+                        $http.post('/wbox/att/new', attach, {
+                            headers: {
+                                "X-Repository": repository + ""
+                            }
+                        }).
+                            success(function (data, status, headers, config) {
+                                deffer.resolve(data['result'][0].data);
+                            }).
+                            error(function (data, status, headers, config) {
+                                logger.logError("Error saving new attachment. " + data['result'][2].message);
+                                deffer.reject(data);
+                            });
+                        return deffer.promise;
                     }
+                }, 'byId': function (id) {
+                    return $att.list().then(function (atts) {
+                        return _.findWhere(atts, {uuid: id})
+                    })
+                }, 'update': function (attach) {
                     var deffer = $q.defer();
-                    $http.post('/wbox/att/new', attach, {
+                    $http.post('/wbox/att/update', attach, {
                         headers: {
                             "X-Repository": repository + ""
                         }
@@ -2157,10 +2181,21 @@
                             deffer.reject(data);
                         });
                     return deffer.promise;
-                }, 'byId': function (id) {
-                    return $att.list().then(function (atts) {
-                        return _.findWhere(atts, {uuid: id})
-                    })
+                }, 'del': function (attach) {
+                    var deffer = $q.defer();
+                    $http.post('/wbox/att/del' + attach['uuid'], {}, {
+                        headers: {
+                            "X-Repository": repository + ""
+                        }
+                    }).
+                        success(function (data, status, headers, config) {
+                            deffer.resolve(data['result'][0].data);
+                        }).
+                        error(function (data, status, headers, config) {
+                            logger.logError("Error saving new attachment. " + data['result'][2].message);
+                            deffer.reject(data);
+                        });
+                    return deffer.promise;
                 }
             };
             return $att;
@@ -2295,7 +2330,7 @@
         }]).
         controller('WboxDocsCtrl', ['$scope', '$location', 'wboxMask', 'wboxDocs', function ($scope, $location, $masks, $docs) {
 
-            $docs.list('la79deuef4bvn0qe5256ddar0l').then(function (docs) {//todo: nedd all docs list withut masks
+            $docs.list('dsggr9g2rpch6kk9mgniveamha').then(function (docs) {//todo: nedd all docs list withut masks
                 $scope.documents = docs;
             }, function (reason) {
 
@@ -2433,6 +2468,10 @@
                 })
             };
 
+            $scope.uploadFile = function () {
+                $location.url("/wbox/attachments/edit?entity=" + $scope.document['uuid'])
+            };
+
             $scope.pd = {
                 opened: false
             };
@@ -2549,11 +2588,15 @@
                 })
             } else {
                 $this.attach = {};
+                if (entity !== undefined) {
+                    $this.attach['entity'] = entity;
+                }
             }
 
             //$this.fileUrl = 'https://s3.eu-central-1.amazonaws.com/business-framework/wbox/5j3fesi1ggqodbhs5v85e79trv.jpg';
 
             $this.uploader.onAfterAddingFile = function (fileItem) {
+                $('.another-file-over-class').removeClass('another-file-over-class')
                 $this.file = fileItem.file;
                 $attch.put(fileItem, $this.uploader).then(function (response) {
                     $this.isImage = response['isImage'];
@@ -2563,6 +2606,16 @@
 
             $this.gen = function () {
                 $attch.gen($this.attach).then(function (att) {
+                    if (!$this.isEdit && entity !== undefined) {
+                        $location.url("/wbox/documents/edit?id=" + att['entity'] + "&cache=true")
+                    } else {
+                        $location.url("/wbox/attachments/list")
+                    }
+                })
+            };
+
+            $this.del = function () {
+                $attch.del($this.attach).then(function (data) {
                     $location.url("/wbox/attachments/list")
                 })
             };

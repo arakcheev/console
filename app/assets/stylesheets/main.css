@@ -13177,3 +13177,8 @@ del{
 .upload-file-name{
     text-decoration: underline;
 }
+
+.pointer.file-hover:hover{
+    color: #2a6496;
+    text-decoration: none;
+}

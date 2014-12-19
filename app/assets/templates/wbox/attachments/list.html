@@ -24,19 +24,32 @@
                     Attachments
                 </div>
                 <div class="panel-body">
-                    <div class="section-header">
-                        <h4>All Attachments</h4>
-                    </div>
 
-                    <div class="panel panel-default" ng-repeat="attach in attCrtrl.attachments">
-                        <div class="panel-body">
-                               <div class="">
-                                   <a ng-bind="attach['name']" class="pointer" ng-click="attCrtrl.edit(attach)"></a>
-                               </div>
+                    <div class="row">
+                        <div class="col-md-2" ng-repeat="attach in attCrtrl.attachments">
+                            <article class="icon-box icon-box-vertical">
+                                <div class="icon-container">
+                                    <a class="pointer file-hover" ng-click="attCrtrl.edit(attach)">
+                                        <span class="ti-file"></span>
+                                    </a>
+                                </div>
+                                <div class="desc-container">
+                                    <a class="pointer" ng-click="attCrtrl.edit(attach)">
+                                        <h4 ng-bind="attach['name']"></h4>
+                                    </a>
 
+                                    <div class="desc">
+                                        Attach to: {{attach['entity']}}
+                                    </div>
+                                    <div class="desc">
+                                        <div>{{attach.date | date:"dd MMM yyyy 'at' h:mma"}}</div>
+                                        <div>artem.ft@gmail.com</div>
+                                    </div>
+
+                                </div>
+                            </article>
                         </div>
                     </div>
-
 
                     <div class="divider divider-lg"></div>
                 </div>
