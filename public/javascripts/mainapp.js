@@ -1222,6 +1222,9 @@
                 ":system/documents/edit",
                 ":system/documents/view",
                 ":system/documents/history",
+                ":system/releases",
+                ":system/attachments/list",
+                ":system/attachments/edit",
                 "dashboard",
                 "ui/typography",
                 "ui/buttons",
@@ -1727,7 +1730,7 @@
 }).call(this);
 
 (function () {
-    angular.module('app.wbox', ['app.wbox.services', 'app.wbox.controllers', 'textAngular', 'app.wbox.directives', 'app.wbox.filters', 'diff'])
+    angular.module('app.wbox', ['app.wbox.services', 'app.wbox.controllers', 'textAngular', 'app.wbox.directives', 'app.wbox.filters', 'diff', 'angularFileUpload', 'ngImageEditor'])
 }).call(this);
 
 (function () {
@@ -1765,7 +1768,7 @@
                 var input = '';
                 if (isView) {
                     if (scope.compared != undefined) {
-                        input = '<div ng-bind-html="docHistory.compared.params['+scope.name+'] | diff: docHistory.document.params['+scope.name+']" >'+'</div>';
+                        input = '<div ng-bind-html="docHistory.compared.params[' + scope.name + '] | diff: docHistory.document.params[' + scope.name + ']" >' + '</div>';
                     } else {
                         input = '<p>' + scope.type + '</p>';
                     }
@@ -2093,6 +2096,74 @@
                 }
             };
             return $docs;
+        }]).
+        factory('wboxAttch', ['$http', '$q', 'logger', 'wboxRepo', function ($http, $q, logger, $repo) {
+            var repository = $repo.get();
+            var $att = {
+                'list': function () {
+                    var deffer = $q.defer();
+                    $http.get('/wbox/att', {
+                        headers: {
+                            "X-Repository": repository + ""
+                        }
+                    }).
+                        success(function (data, status, headers, config) {
+                            var attch = _.filter(data['result'][0].data, function (item) {
+                                return item.status !== -1;
+                            });
+                            deffer.resolve(attch);
+                        }).
+                        error(function (data, status, headers, config) {
+                            logger.logError("Error loading attachments. " + data['result'][2].message);
+                            deffer.reject(data);
+                        });
+                    return deffer.promise;
+                }, 'put': function (fileItem, uploader) {
+                    var deffer = $q.defer();
+                    fileItem['url'] = '/putfile' + 'wbox';
+                    fileItem['headers'] = {
+                        "X-Repository": repository + ""
+                    };
+                    if (fileItem.file['type'].indexOf('image') !== -1) {
+                        deffer.resolve({
+                            isImage: true
+                        });
+                        console.error("Upload images not implemented yet;");
+                    } else {
+                        uploader.onCompleteItem = function (fileItem, response, status, headers) {
+                            deffer.resolve({
+                                fileUrl: response['result'][0].data['url'],
+                                isImage: false
+                            })
+                        };
+                        fileItem.upload();
+                    }
+                    return deffer.promise;
+                }, 'gen': function (attach) {
+                    if (attach['entity'] === undefined) {
+                        attach['entity'] = repository;
+                    }
+                    var deffer = $q.defer();
+                    $http.post('/wbox/att/new', attach, {
+                        headers: {
+                            "X-Repository": repository + ""
+                        }
+                    }).
+                        success(function (data, status, headers, config) {
+                            deffer.resolve(data['result'][0].data);
+                        }).
+                        error(function (data, status, headers, config) {
+                            logger.logError("Error saving new attachment. " + data['result'][2].message);
+                            deffer.reject(data);
+                        });
+                    return deffer.promise;
+                }, 'byId': function (id) {
+                    return $att.list().then(function (atts) {
+                        return _.findWhere(atts, {uuid: id})
+                    })
+                }
+            };
+            return $att;
         }]);
 }).call(this);
 
@@ -2331,7 +2402,6 @@
                 $scope.document.tags = _.map($scope.document.tags, function (tag) {
                     return tag['text'];
                 });
-                console.log($scope.document)
                 if ($scope.document.publishDate != 0) {
                     $scope.document.pd = new Date($scope.document.publishDate).getTime();
                 }
@@ -2432,7 +2502,8 @@
                 $location.url("/wbox/documents/history?id=" + $scope.document.uuid);
             }
 
-        }]).controller("WboxDocHistory", ['$scope', '$location', 'wboxDocs', function ($scope, $location, $docs) {
+        }]).
+        controller("WboxDocHistory", ['$scope', '$location', 'wboxDocs', function ($scope, $location, $docs) {
             var id = $location.search()['id'], $this = this;
 
             $docs.history(id).then(function (docs) {
@@ -2440,13 +2511,88 @@
                 $this.document = _.max(docs, function (doc) {
                     return doc['revision']
                 });
-                $this.compared = _.findWhere(docs, {'revision': $this.document['revision'] - 1})
+                $this.compared = _.findWhere(docs, {'revision': $this.document['revision']})
             }, function (reason) {
 
             });
 
             this.setDoc = function (doc) {
                 $this.compared = doc;
+            }
+
+        }]).
+        controller('WboxAttchCtrl', ['$scope', '$location', 'wboxAttch', function ($scope, $location, $attch) {
+            var $this = this;
+
+            $attch.list().then(function (atts) {
+                $this.attachments = atts
+            });
+
+            this.edit = function (att) {
+                $location.url("/wbox/attachments/edit?id=" + att.uuid)
+            };
+
+            this.newAttch = function () {
+                $location.url("/wbox/attachments/edit")
+            }
+        }])
+        .controller('WboxAttchEditCtrl', ['$scope', '$location', 'wboxAttch', 'FileUploader', function ($scope, $location, $attch, FileUploader) {
+            var $this = this, id = $location.search()['id'], entity = $location.search()['entity'];
+
+            $this.uploader = new FileUploader({});
+
+            id == undefined ? $this.isEdit = false : $this.isEdit = true;
+
+            if ($this.isEdit) {
+                $attch.byId(id).then(function (att) {
+                    $this.attach = att;
+                })
+            } else {
+                $this.attach = {};
+            }
+
+            //$this.fileUrl = 'https://s3.eu-central-1.amazonaws.com/business-framework/wbox/5j3fesi1ggqodbhs5v85e79trv.jpg';
+
+            $this.uploader.onAfterAddingFile = function (fileItem) {
+                $this.file = fileItem.file;
+                $attch.put(fileItem, $this.uploader).then(function (response) {
+                    $this.isImage = response['isImage'];
+                    $this.attach.url = response['fileUrl'];
+                });
+            };
+
+            $this.gen = function () {
+                $attch.gen($this.attach).then(function (att) {
+                    $location.url("/wbox/attachments/list")
+                })
+            };
+
+            /*$scope.$watch('attEditCtrl.fileUrl', function (url) {
+             if (url != undefined) {
+             Caman("#image-edit", function () {
+             // manipulate image here
+             this.render(function () {
+             $this.resultImageData = this.canvas.toDataURL()
+             });
+             });
+             }
+             });*/
+
+            $scope.enabledResizeSelector = true;
+
+            var clear = $scope.$watch('imageEditor', function (imageEditor) {
+                if (imageEditor) {
+                    clear();
+                    $scope.enabled = true;
+                }
+            });
+
+            $scope.capture = function () {
+                $scope.selectedBlock = $scope.imageEditor.toDataURL();
+            };
+
+            $scope.onImageChange = function () {
+                console.log('img change');
             }
 
         }]);

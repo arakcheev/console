@@ -40,9 +40,15 @@
         <script src='@routes.Assets.versioned("javascripts/vendor/textAngular-rangy.min.js")'></script>
         <script src='@routes.Assets.versioned("javascripts/vendor/textAngular-sanitize.min.js")'></script>
         <script src="http://matteosuppo.github.io/angular-diff/angular-diff.min.js"></script>
+        <script src='@routes.Assets.versioned("javascripts/vendor/fileUpload.js")'></script>
+        <script src='@routes.Assets.versioned("javascripts/vendor/imageEditor.js")'></script>
+        <script src='@routes.Assets.versioned("javascripts/vendor/caman.full.min.js")'></script>
         <script src='@routes.Assets.versioned("javascripts/vendor/textAngular.min.js")'></script>
         <script src='/assets/javascripts/mainapp.js'></script>
         @*<script type="text/javascript" src="/assets/javascripts/vendor/vendor.js"></script>*@
+        <script type="text/javascript">
+        Caman.DEBUG = true
+        </script>
     </head>
     <body ng-app="app" id="app" class="app" custom-page off-canvas-nav ng-controller="AppCtrl" ng-class=" {'layout-boxed': admin.layout === 'boxed' } ">
 

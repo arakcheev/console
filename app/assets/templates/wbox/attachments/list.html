@@ -1,0 +1,63 @@
+<!--
+  ~ Copyright 2014. Arakcheev Artem (artem.arakcheev@phystech.edu)
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~  http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<div class="page" ng-controller="WboxAttchCtrl as attCrtrl">
+    <div class="row">
+
+        <div class="col-md-9">
+            <section class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-th"></span>
+                    Attachments
+                </div>
+                <div class="panel-body">
+                    <div class="section-header">
+                        <h4>All Attachments</h4>
+                    </div>
+
+                    <div class="panel panel-default" ng-repeat="attach in attCrtrl.attachments">
+                        <div class="panel-body">
+                               <div class="">
+                                   <a ng-bind="attach['name']" class="pointer" ng-click="attCrtrl.edit(attach)"></a>
+                               </div>
+
+                        </div>
+                    </div>
+
+
+                    <div class="divider divider-lg"></div>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-md-3">
+            <section class="panel panel-default">
+                <div class="panel-body">
+                    <button type="button"
+                            class="btn btn-default"
+                            dropdown-toggle=""
+                            aria-haspopup="true"
+                            aria-expanded="false"
+                            ng-click="attCrtrl.newAttch()">
+                        New Attachment
+                    </button>
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+</div>

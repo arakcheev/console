@@ -13161,3 +13161,19 @@ ins{
 del{
     color: red;
 }
+
+.my-drop-zone { border: dotted 3px lightgray; }
+.nv-file-over { border: dotted 3px red; } /* Default class applied to drop zones on over */
+.another-file-over-class { border: dotted 3px green; }
+
+.file-input-name{
+    display:none;
+}
+
+#image-edit{
+    width: 500px;
+}
+
+.upload-file-name{
+    text-decoration: underline;
+}

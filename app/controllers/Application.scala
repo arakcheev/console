@@ -1,9 +1,11 @@
 package controllers
 
+import models.services.aws.S3
 import play.api._
 import play.api.http.MimeTypes
 import play.api.libs.json.{JsArray, JsValue, Json}
 import play.api.libs.ws.WS
+import play.api.mvc.MultipartFormData.FilePart
 import play.api.mvc._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -27,10 +29,31 @@ object Application extends JsonSerializerController with Secured {
 
     (r.method match {
       case "GET" => res.get()
-      case "POST" => res.post(r.body.asJson.getOrElse(Json.obj()))
+      case "POST" if r.body.asMultipartFormData.isDefined => {
+        Logger.logger.debug(s" ${r.body.asMultipartFormData.get.file("file").get.ref.file}") //todo:
+        res.post(r.body.asMultipartFormData.get.file("file").get.ref.file)
+      }
+      case "POST" if r.body.asMultipartFormData.isEmpty => res.post(r.body.asJson.getOrElse(Json.obj()))
     }).map { responce =>
       new Status(responce.status).apply(responce.body).as(MimeTypes.JSON)
     }
+  }
+
+  def put(folder: String) = Auth.async(parse.multipartFormData) { implicit user => implicit request =>
+    request.body.file("file") match {
+      case Some(FilePart(key, name, cp, ref)) =>
+        S3.put(ref.file, name, folder).map { r =>
+          ok(Json.obj(
+            "url" -> r._1
+          ))
+        }
+      case _ => futureBad("Error loading file")
+    }
+  }
+
+  def foo = Auth.auth(parse.raw){ implicit user => implicit r =>
+    r.body.asBytes().map(println)
+    ok(Json.obj())
   }
 
   /**

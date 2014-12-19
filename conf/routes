@@ -28,6 +28,9 @@ GET         /task                                  controllers.TaskControl.list
 POST        /task/new                              controllers.TaskControl.newTask
 
 GET         /comments                              controllers.CommentControl.socket
+POST        /foo                                   controllers.Application.foo
+
+POST        /putfile:folder                        controllers.Application.put(folder: String)
 
 GET         /:system/*url                          controllers.Application.proxy(system: String,url: String)
 

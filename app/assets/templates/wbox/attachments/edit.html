@@ -1,0 +1,134 @@
+<!--
+  ~ Copyright 2014. Arakcheev Artem (artem.arakcheev@phystech.edu)
+  ~
+  ~  Licensed under the Apache License, Version 2.0 (the "License");
+  ~  you may not use this file except in compliance with the License.
+  ~  You may obtain a copy of the License at
+  ~
+  ~  http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~  See the License for the specific language governing permissions and
+  ~  limitations under the License.
+  -->
+
+<div class="page" ng-controller="WboxAttchEditCtrl as attEditCtrl" nv-file-drop="" uploader="attEditCtrl.uploader">
+    <div class="row">
+
+        <div class="col-md-9">
+            <section class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-th"></span>
+                    Attachments
+                </div>
+                <div class="panel-body">
+                    <div class="section-header">
+                        <div class="pull-right document-ti-font" ng-show="attEditCtrl.isEdit">
+                            <span class="ti-trash pointer color-danger" ng-click="del()"></span>
+                        </div>
+                        <h4>{{attEditCtrl.isEdit ? 'Edit Attachment': 'New Attachment'}}</h4>
+                        <button class="btn btn-default" ng-click="$back()"><< Back</button>
+                        <button class="btn btn-default" ng-click="attEditCtrl.gen()"
+                                ng-class="{'btn-warning': attEditCtrl.attach.url}">
+                            <span class="glyphicon glyphicon-floppy-disk"></span>
+                            <span>{{ attEditCtrl.isEdit ? "Update" : "Save" }} attachment</span>
+                        </button>
+                    </div>
+
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+
+                            <form class="form-horizontal ng-pristine ng-valid" role="form">
+                                <div class="form-group">
+                                    <label for="label-name" class="col-sm-2 control-label">Attachment Name</label>
+
+                                    <div class="col-sm-9">
+                                        <input type="text"
+                                               class="form-control"
+                                               id="label-name"
+                                               placeholder="Name"
+                                               ng-model="attEditCtrl.attach.name">
+                                    </div>
+                                </div>
+
+                            </form>
+
+                            <div class="panel-body" ng-show="attEditCtrl.attach['url'] != undefined">
+                                <div>Your file
+                                    <span class="upload-file-name">{{attEditCtrl.attach['url']}}</span>
+                                </div>
+                            </div>
+
+                            <div class="panel-body">
+                                <div class="">
+                                    <input type="file"
+                                           title="<span class='ti-upload'> Choose File </span>"
+                                           data-ui-file-upload
+                                           class="btn-primary"
+                                           nv-file-select=""
+                                           uploader="attEditCtrl.uploader">
+
+                                    <div class="space"></div>
+                                    <span> or </span>
+                                </div>
+                            </div>
+
+                            <div class="panel-body">
+                                <div>
+                                    <div class="drop-box my-drop-zone"
+                                         over-class="another-file-over-class"
+                                         nv-file-over=""
+                                         uploader="attEditCtrl.uploader">Drag and drop files here
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="panel-body" ng-if="attEditCtrl.isImage">
+                                <div ng-if="attEditCtrl.fileUrl != undefined">
+                                    <div on-img-change="onImageChange()"
+                                         class="ng-image-editor"
+                                         selected="selected"
+                                         img-src="attEditCtrl.fileUrl"
+                                         ng-image-editor="imageEditor"
+                                         ng-init="selected = {width:150,height:150,top:0,left:0};"
+                                         enabled-resize-selector="enabledResizeSelector">
+
+                                    </div>
+
+
+                                    <div class="panel-body">
+                                        <img
+                                                id="image-edit"
+                                                ng-src="{{imageEditor.toDataURL()}}"
+                                                >
+                                        <!--src="/assets/images/background/3.jpg"-->
+                                        <!--<img id="image-edit" src="{{attEditCtrl.fileUrl}}">-->
+                                    </div>
+                                    <img ng-src="{{attEditCtrl.resultImageData}}" alt=""/>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="divider divider-lg"></div>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-md-3">
+            <section class="panel panel-default">
+                <div class="panel-body">
+
+                </div>
+            </section>
+        </div>
+
+    </div>
+
+</div>
